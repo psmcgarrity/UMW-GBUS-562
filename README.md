@@ -7,4 +7,4 @@ This repository contains coursework and materials from GBUS 562: AI Language Mod
 
 ## Weekly Material
 
-1. week-01
+1. [week-01](week-01/)

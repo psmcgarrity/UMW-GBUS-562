@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect Four</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --surface: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --line: #e3dfd6;
+    --board: #2f5bd3;
+    --board-edge: #2247ad;
+    --hole: #ece9e1;
+    --p1: #e5484d;
+    --p1-edge: #b3343a;
+    --p2: #f5b301;
+    --p2-edge: #c78d00;
+    --accent: #2f5bd3;
+    --shadow: 0 18px 40px rgba(25, 35, 70, .18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #11141b;
+      --surface: #1a1f2b;
+      --text: #e8eaf0;
+      --muted: #98a1b3;
+      --line: #2a3142;
+      --board: #2b4fb5;
+      --board-edge: #1d3a8a;
+      --hole: #0c0f15;
+      --accent: #6f93ff;
+      --shadow: 0 18px 40px rgba(0, 0, 0, .55);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 40px;
+  }
+  main { width: 100%; max-width: 560px; }
+
+  header { text-align: center; margin-bottom: 18px; }
+  h1 { margin: 0; font-size: 2rem; letter-spacing: -.02em; }
+  .subtitle { margin: 4px 0 0; color: var(--muted); font-size: .95rem; }
+
+  /* Scoreboard */
+  .scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .score { padding: 10px 8px; text-align: center; }
+  .score + .score { border-left: 1px solid var(--line); }
+  .score .label {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+  }
+  .score .value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .chip { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .chip.p1 { background: var(--p1); }
+  .chip.p2 { background: var(--p2); }
+
+  /* Controls */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .group { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+  .seg {
+    display: inline-flex; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 3px;
+  }
+  .seg button {
+    border: 0; background: transparent; color: var(--text); font: inherit; font-size: .85rem;
+    padding: 6px 10px; border-radius: 7px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .btn {
+    border: 0; background: var(--text); color: var(--bg); font: inherit; font-weight: 600;
+    font-size: .9rem; padding: 9px 16px; border-radius: 10px; cursor: pointer;
+  }
+  .btn:hover { opacity: .88; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Status */
+  .status {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 32px; margin-bottom: 8px; font-weight: 600; font-size: 1.05rem;
+  }
+  .status .chip { width: 16px; height: 16px; }
+  .status.thinking .chip { animation: pulse 0.9s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(.6); opacity: .5; } }
+
+  /* Board */
+  .board-wrap { --gap: clamp(5px, 1.6vw, 10px); position: relative; }
+  .preview, .board {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--gap);
+  }
+  .preview { padding: 0 calc(var(--gap) * 1.4); margin-bottom: 6px; }
+  .ghost {
+    aspect-ratio: 1; border-radius: 50%; opacity: 0; transform: translateY(6px);
+    transition: opacity .15s, transform .15s;
+  }
+  .ghost.show { opacity: .55; transform: none; }
+  .ghost.p1 { background: var(--p1); }
+  .ghost.p2 { background: var(--p2); }
+
+  .board {
+    background: var(--board);
+    padding: calc(var(--gap) * 1.4);
+    border-radius: 18px;
+    border-bottom: 8px solid var(--board-edge);
+    box-shadow: var(--shadow);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cell {
+    aspect-ratio: 1; border-radius: 50%; background: var(--hole);
+    box-shadow: inset 0 4px 6px rgba(0, 0, 0, .28);
+    position: relative; cursor: pointer;
+  }
+  .board.locked .cell { cursor: default; }
+  .cell.col-hover { box-shadow: inset 0 4px 6px rgba(0, 0, 0, .28), 0 0 0 2px rgba(255, 255, 255, .35); }
+
+  .disc {
+    position: absolute; inset: 0; border-radius: 50%; visibility: hidden;
+  }
+  .disc.p1, .disc.p2 { visibility: visible; }
+  .disc.p1 { background: radial-gradient(circle at 35% 30%, #ff7b7f, var(--p1) 55%, var(--p1-edge)); }
+  .disc.p2 { background: radial-gradient(circle at 35% 30%, #ffd75a, var(--p2) 55%, var(--p2-edge)); }
+  .disc::after {
+    /* inner ring for a molded-plastic look */
+    content: ""; position: absolute; inset: 18%; border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, .12);
+  }
+  .disc.drop {
+    z-index: 2;
+    animation: drop var(--dur, 400ms) both;
+  }
+  @keyframes drop {
+    0%   { transform: translateY(calc(var(--fall) * -118%)); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+    72%  { transform: translateY(0); animation-timing-function: ease-out; }
+    86%  { transform: translateY(-9%); animation-timing-function: ease-in; }
+    100% { transform: translateY(0); }
+  }
+  .disc.last::before {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 18%; height: 18%;
+    transform: translate(-50%, -50%); border-radius: 50%; background: rgba(255, 255, 255, .7);
+  }
+  .board.finished .disc:not(.win) { filter: saturate(.35) brightness(.8); transition: filter .4s; }
+  .disc.win { animation: win 1s ease-in-out infinite; z-index: 3; }
+  .disc.win::after { border-color: rgba(255, 255, 255, .9); border-width: 3px; }
+  @keyframes win { 50% { transform: scale(1.08); } }
+
+  body.pvp .ai-only { display: none; }
+
+  .hint { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 16px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .disc.drop, .disc.win, .status.thinking .chip { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Connect Four</h1>
+    <p class="subtitle">Line up four in a row before your opponent does.</p>
+  </header>
+
+  <section class="scores" aria-label="Score">
+    <div class="score"><div class="label"><span class="chip p1"></span><span id="name-1">You</span></div><div class="value" id="score-human">0</div></div>
+    <div class="score"><div class="label">Draws</div><div class="value" id="score-draw">0</div></div>
+    <div class="score"><div class="label"><span class="chip p2"></span><span id="name-2">Computer</span></div><div class="value" id="score-ai">0</div></div>
+  </section>
+
+  <section class="controls">
+    <div class="group">Mode
+      <div class="seg" id="mode">
+        <button data-mode="ai">vs Computer</button>
+        <button data-mode="pvp">2 Players</button>
+      </div>
+    </div>
+    <div class="group ai-only">Level
+      <div class="seg" id="level">
+        <button data-level="easy">Easy</button>
+        <button data-level="medium">Medium</button>
+        <button data-level="hard">Hard</button>
+      </div>
+    </div>
+    <div class="group ai-only">First
+      <div class="seg" id="first">
+        <button data-first="human">You</button>
+        <button data-first="ai">CPU</button>
+      </div>
+    </div>
+    <button class="btn" id="new-game">New game</button>
+  </section>
+
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <div class="board-wrap">
+    <div class="preview" id="preview" aria-hidden="true"></div>
+    <div class="board" id="board" role="grid" aria-label="Connect Four board"></div>
+  </div>
+
+  <p class="hint">Click a column to drop a disc · keys 1–7, or ← → and Enter</p>
+</main>
+
+<script>
+(() => {
+  const ROWS = 6, COLS = 7;
+  const HUMAN = 1, AI = 2;
+  const LEVELS = {
+    easy:   { depth: 2, randomness: 0.3 },
+    medium: { depth: 4, randomness: 0 },
+    hard:   { depth: 6, randomness: 0 },
+  };
+  // Search center columns first: better moves earlier means more alpha-beta pruning.
+  const ORDER = [3, 2, 4, 1, 5, 0, 6];
+  const WIN_SCORE = 1_000_000;
+
+  const boardEl = document.getElementById('board');
+  const previewEl = document.getElementById('preview');
+  const statusEl = document.getElementById('status');
+  const scoreEls = {
+    human: document.getElementById('score-human'),
+    draw: document.getElementById('score-draw'),
+    ai: document.getElementById('score-ai'),
+  };
+
+  // ---------- Persistent settings (per browser, best effort) ----------
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem('c4-' + key); return v === null ? fallback : JSON.parse(v); }
+      catch { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem('c4-' + key, JSON.stringify(value)); } catch { /* ignore */ }
+    },
+  };
+
+  // mode is 'ai' (you vs the computer) or 'pvp' (two people sharing the screen).
+  // In pvp, player 1 is Red and player 2 is Yellow; the score slots are reused.
+  let mode = store.get('mode', 'ai');
+  let level = store.get('level', 'medium');
+  let first = store.get('first', 'human');
+  const scoreKey = () => (mode === 'pvp' ? 'scores-pvp' : 'scores');
+  let scores = store.get(scoreKey(), { human: 0, draw: 0, ai: 0 });
+
+  let grid, current, moves, over, busy, hoverCol = null, lastDisc = null;
+  let pvpStarter = HUMAN; // two-player games alternate who goes first
+
+  // ---------- Build DOM ----------
+  const cells = [];
+  const ghosts = [];
+  for (let c = 0; c < COLS; c++) {
+    const g = document.createElement('div');
+    g.className = 'ghost';
+    previewEl.appendChild(g);
+    ghosts.push(g);
+  }
+  for (let r = 0; r < ROWS; r++) {
+    cells.push([]);
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.col = c;
+      const disc = document.createElement('div');
+      disc.className = 'disc';
+      cell.appendChild(disc);
+      boardEl.appendChild(cell);
+      cells[r].push(cell);
+    }
+  }
+
+  // ---------- Game rules ----------
+  const emptyGrid = () => Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+
+  function openRow(g, c) {
+    for (let r = ROWS - 1; r >= 0; r--) if (g[r][c] === 0) return r;
+    return -1;
+  }
+
+  const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+
+  // Returns the winning line through (r, c), or null.
+  function winningLine(g, r, c, p) {
+    for (const [dr, dc] of DIRS) {
+      const line = [[r, c]];
+      for (const s of [1, -1]) {
+        let rr = r + dr * s, cc = c + dc * s;
+        while (rr >= 0 && rr < ROWS && cc >= 0 && cc < COLS && g[rr][cc] === p) {
+          line.push([rr, cc]);
+          rr += dr * s; cc += dc * s;
+        }
+      }
+      if (line.length >= 4) return line;
+    }
+    return null;
+  }
+
+  function isWin(g, r, c, p) {
+    for (const [dr, dc] of DIRS) {
+      let n = 1;
+      for (const s of [1, -1]) {
+        let rr = r + dr * s, cc = c + dc * s;
+        while (rr >= 0 && rr < ROWS && cc >= 0 && cc < COLS && g[rr][cc] === p) {
+          n++; rr += dr * s; cc += dc * s;
+        }
+      }
+      if (n >= 4) return true;
+    }
+    return false;
+  }
+
+  // ---------- AI: negamax with alpha-beta pruning ----------
+  // Every possible four-in-a-row window on the board, computed once.
+  const WINDOWS = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      for (const [dr, dc] of DIRS) {
+        const er = r + dr * 3, ec = c + dc * 3;
+        if (er < 0 || er >= ROWS || ec < 0 || ec >= COLS) continue;
+        WINDOWS.push([0, 1, 2, 3].map(i => [r + dr * i, c + dc * i]));
+      }
+    }
+  }
+
+  // Static score of a position from player p's point of view.
+  function evaluate(g, p) {
+    const o = 3 - p;
+    let score = 0;
+    for (let r = 0; r < ROWS; r++) {
+      if (g[r][3] === p) score += 3;
+      else if (g[r][3] === o) score -= 3;
+    }
+    for (const w of WINDOWS) {
+      let mine = 0, theirs = 0;
+      for (const [r, c] of w) {
+        if (g[r][c] === p) mine++;
+        else if (g[r][c] === o) theirs++;
+      }
+      if (mine && theirs) continue; // blocked window, worthless to both
+      if (mine === 3) score += 6;
+      else if (mine === 2) score += 2;
+      else if (theirs === 3) score -= 8;
+      else if (theirs === 2) score -= 2;
+    }
+    return score;
+  }
+
+  function negamax(g, depth, alpha, beta, p, filled) {
+    if (filled === ROWS * COLS) return 0;
+    let best = -Infinity;
+    for (const c of ORDER) {
+      const r = openRow(g, c);
+      if (r < 0) continue;
+      g[r][c] = p;
+      let score;
+      if (isWin(g, r, c, p)) score = WIN_SCORE + depth; // prefer quicker wins
+      else if (depth === 0) score = evaluate(g, p);
+      else score = -negamax(g, depth - 1, -beta, -alpha, 3 - p, filled + 1);
+      g[r][c] = 0;
+      if (score > best) best = score;
+      if (best > alpha) alpha = best;
+      if (alpha >= beta) break;
+    }
+    return best;
+  }
+
+  function chooseMove() {
+    const { depth, randomness } = LEVELS[level];
+    const g = grid.map(row => row.slice());
+    const legal = ORDER.filter(c => openRow(g, c) >= 0);
+
+    // Always take a win and always block one, even on Easy.
+    for (const p of [AI, HUMAN]) {
+      for (const c of legal) {
+        const r = openRow(g, c);
+        g[r][c] = p;
+        const wins = isWin(g, r, c, p);
+        g[r][c] = 0;
+        if (wins) return c;
+      }
+    }
+    if (Math.random() < randomness) {
+      return legal[Math.floor(Math.random() * legal.length)];
+    }
+
+    let bestScore = -Infinity, bestCols = [];
+    for (const c of legal) {
+      const r = openRow(g, c);
+      g[r][c] = AI;
+      const score = -negamax(g, depth - 1, -Infinity, Infinity, HUMAN, moves + 1);
+      g[r][c] = 0;
+      if (score > bestScore) { bestScore = score; bestCols = [c]; }
+      else if (score === bestScore) bestCols.push(c);
+    }
+    // Small variety between equally good moves keeps games from repeating.
+    return bestCols[Math.floor(Math.random() * bestCols.length)];
+  }
+
+  // ---------- Turn flow ----------
+  function newGame() {
+    grid = emptyGrid();
+    moves = 0;
+    over = false;
+    busy = false;
+    lastDisc = null;
+    if (mode === 'pvp') {
+      current = pvpStarter;
+      pvpStarter = 3 - pvpStarter;
+    } else {
+      current = first === 'human' ? HUMAN : AI;
+    }
+    boardEl.classList.remove('finished');
+    for (const row of cells) for (const cell of row) cell.firstChild.className = 'disc';
+    updateStatus();
+    refreshHover();
+    if (mode === 'ai' && current === AI) aiTurn();
+  }
+
+  // Drops a disc for the current player. Calls done() after the animation.
+  function play(c, done) {
+    const r = openRow(grid, c);
+    if (r < 0) return false;
+    const p = current;
+    grid[r][c] = p;
+    moves++;
+
+    const disc = cells[r][c].firstChild;
+    if (lastDisc) lastDisc.classList.remove('last');
+    const dur = 300 + r * 55;
+    disc.style.setProperty('--fall', r + 1);
+    disc.style.setProperty('--dur', dur + 'ms');
+    disc.className = `disc p${p} drop last`;
+    lastDisc = disc;
+
+    busy = true;
+    refreshHover();
+    setTimeout(() => {
+      busy = false;
+      const line = winningLine(grid, r, c, p);
+      if (line) finish(p, line);
+      else if (moves === ROWS * COLS) finish(0, null);
+      else { current = 3 - p; updateStatus(); }
+      refreshHover();
+      done && done();
+    }, dur);
+    return true;
+  }
+
+  function humanMove(c) {
+    if (!canHumanPlay()) return;
+    play(c, () => { if (!over && mode === 'ai') aiTurn(); });
+  }
+
+  function aiTurn() {
+    busy = true;
+    updateStatus();
+    refreshHover();
+    const started = performance.now();
+    // Let the "thinking" status paint before the search blocks the thread.
+    setTimeout(() => {
+      const c = chooseMove();
+      const wait = Math.max(0, 450 - (performance.now() - started));
+      setTimeout(() => { busy = false; play(c); }, wait);
+    }, 30);
+  }
+
+  function finish(winner, line) {
+    over = true;
+    boardEl.classList.add('finished');
+    if (line) for (const [r, c] of line) cells[r][c].firstChild.classList.add('win');
+    if (lastDisc && line) lastDisc.classList.remove('last');
+    if (winner === HUMAN) scores.human++;
+    else if (winner === AI) scores.ai++;
+    else scores.draw++;
+    store.set('scores', scores);
+    renderScores();
+    let msg;
+    if (!winner) msg = "It's a draw.";
+    else if (mode === 'pvp') msg = `${playerName(winner)} wins!`;
+    else msg = winner === HUMAN ? 'You win!' : 'The computer wins.';
+    setStatus(msg, winner ? 'p' + winner : null);
+  }
+
+  // ---------- UI ----------
+  function setStatus(text, chip, thinking = false) {
+    statusEl.className = 'status' + (thinking ? ' thinking' : '');
+    statusEl.innerHTML = (chip ? `<span class="chip ${chip}"></span>` : '') + `<span>${text}</span>`;
+  }
+
+  function playerName(p) {
+    if (mode === 'pvp') return p === HUMAN ? 'Red' : 'Yellow';
+    return p === HUMAN ? 'You' : 'Computer';
+  }
+
+  function updateStatus() {
+    if (over) return;
+    if (mode === 'pvp') setStatus(`${playerName(current)}'s turn`, 'p' + current);
+    else if (current === HUMAN) setStatus('Your turn', 'p1');
+    else setStatus('Computer is thinking…', 'p2', true);
+  }
+
+  function renderScores() {
+    scoreEls.human.textContent = scores.human;
+    scoreEls.draw.textContent = scores.draw;
+    scoreEls.ai.textContent = scores.ai;
+    document.getElementById('name-1').textContent = playerName(HUMAN);
+    document.getElementById('name-2').textContent = playerName(AI);
+  }
+
+  function canHumanPlay() {
+    return !over && !busy && (mode === 'pvp' || current === HUMAN);
+  }
+
+  function setHover(col) {
+    hoverCol = col;
+    refreshHover();
+  }
+
+  function refreshHover() {
+    const active = canHumanPlay();
+    boardEl.classList.toggle('locked', !active);
+    for (let c = 0; c < COLS; c++) {
+      const on = active && c === hoverCol && openRow(grid, c) >= 0;
+      ghosts[c].className = 'ghost' + (on ? ` show p${current}` : '');
+      for (let r = 0; r < ROWS; r++) cells[r][c].classList.toggle('col-hover', on);
+    }
+  }
+
+  function syncButtons() {
+    document.body.classList.toggle('pvp', mode === 'pvp');
+    for (const b of document.querySelectorAll('#mode button')) b.setAttribute('aria-pressed', b.dataset.mode === mode);
+    for (const b of document.querySelectorAll('#level button')) b.setAttribute('aria-pressed', b.dataset.level === level);
+    for (const b of document.querySelectorAll('#first button')) b.setAttribute('aria-pressed', b.dataset.first === first);
+  }
+
+  // ---------- Events ----------
+  boardEl.addEventListener('click', e => {
+    const cell = e.target.closest('.cell');
+    if (cell) humanMove(+cell.dataset.col);
+  });
+  boardEl.addEventListener('mouseover', e => {
+    const cell = e.target.closest('.cell');
+    if (cell) setHover(+cell.dataset.col);
+  });
+  boardEl.addEventListener('mouseleave', () => setHover(null));
+
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('button') && (e.key === 'Enter' || e.key === ' ')) return;
+    if (e.key >= '1' && e.key <= '7') { humanMove(+e.key - 1); return; }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const start = hoverCol === null ? 3 : hoverCol + (e.key === 'ArrowLeft' ? -1 : 1);
+      setHover(Math.min(COLS - 1, Math.max(0, start)));
+      e.preventDefault();
+    } else if ((e.key === 'Enter' || e.key === ' ') && hoverCol !== null) {
+      humanMove(hoverCol);
+      e.preventDefault();
+    }
+  });
+
+  document.getElementById('mode').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || b.dataset.mode === mode) return;
+    if (busy && !over) return; // let the computer's move finish first
+    mode = b.dataset.mode;
+    store.set('mode', mode);
+    scores = store.get(scoreKey(), { human: 0, draw: 0, ai: 0 });
+    pvpStarter = HUMAN;
+    syncButtons();
+    renderScores();
+    newGame();
+  });
+  document.getElementById('level').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    level = b.dataset.level;
+    store.set('level', level);
+    syncButtons();
+  });
+  document.getElementById('first').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    first = b.dataset.first;
+    store.set('first', first);
+    syncButtons();
+    if (moves === 0 && !busy) newGame(); // apply right away if the game hasn't started
+  });
+  document.getElementById('new-game').addEventListener('click', () => {
+    if (busy && !over) return; // don't interrupt a move in progress
+    newGame();
+  });
+
+  syncButtons();
+  renderScores();
+  newGame();
+})();
+</script>
+</body>
+</html>
