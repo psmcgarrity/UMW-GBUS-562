@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oxono</title>
+<style>
+  :root {
+    --bg: #f3efe8;
+    --surface: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --line: #e2ddd3;
+    --board: #d9cfbf;
+    --board-edge: #c4b8a4;
+    --cell: #f6f2ea;
+    --cell-hover: #ffffff;
+    --p0: #e2457d;
+    --p0-edge: #b62f60;
+    --p1: #2b2f3a;
+    --p1-edge: #12141a;
+    --piece-ring: transparent;
+    --totem: #f4e4c4;
+    --totem-edge: #cdb486;
+    --totem-ink: #6b4a2b;
+    --accent: #2f6fdb;
+    --win: #ffd23f;
+    --shadow: 0 18px 40px rgba(40, 30, 15, .18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #11141b;
+      --surface: #1a1f2b;
+      --text: #e8eaf0;
+      --muted: #98a1b3;
+      --line: #2a3142;
+      --board: #232a38;
+      --board-edge: #171c26;
+      --cell: #2e3647;
+      --cell-hover: #38415a;
+      --p1: #0d0f14;
+      --p1-edge: #000;
+      --piece-ring: rgba(255, 255, 255, .22);
+      --accent: #6f9bff;
+      --shadow: 0 18px 40px rgba(0, 0, 0, .55);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 40px;
+  }
+  main { width: 100%; max-width: 540px; }
+  svg { display: block; }
+
+  header { text-align: center; margin-bottom: 18px; }
+  h1 { margin: 0; font-size: 2rem; letter-spacing: .04em; }
+  .subtitle { margin: 4px 0 0; color: var(--muted); font-size: .95rem; }
+
+  /* Players / score */
+  .players {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; margin-bottom: 14px;
+  }
+  .player { padding: 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: background .2s; }
+  .player.active { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  .draws { padding: 10px 14px; text-align: center; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+  }
+  .value { font-size: 1.45rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .chip { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; box-shadow: 0 0 0 1px var(--piece-ring); }
+  .chip.o0 { background: var(--p0); }
+  .chip.o1 { background: var(--p1); }
+  .reserve { display: flex; align-items: center; gap: 6px; font-size: .85rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .reserve .mini { width: 18px; height: 18px; border-radius: 4px; color: #fff; padding: 2px; }
+  .reserve .mini.o0 { background: var(--p0); }
+  .reserve .mini.o1 { background: var(--p1); box-shadow: 0 0 0 1px var(--piece-ring); }
+  .reserve b { color: var(--text); min-width: 1ch; }
+  .reserve b.empty { color: var(--muted); opacity: .5; }
+
+  /* Controls */
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .group { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--text); font: inherit; font-size: .85rem;
+    padding: 6px 10px; border-radius: 7px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .btn {
+    border: 0; background: var(--text); color: var(--bg); font: inherit; font-weight: 600;
+    font-size: .9rem; padding: 9px 16px; border-radius: 10px; cursor: pointer;
+  }
+  .btn:hover { opacity: .88; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Status */
+  .status {
+    display: flex; align-items: center; justify-content: center; gap: 10px; text-align: center;
+    min-height: 44px; margin-bottom: 8px; font-weight: 600; font-size: 1.02rem;
+  }
+  .status .chip { width: 14px; height: 14px; }
+  .status.thinking .chip { animation: pulse .9s ease-in-out infinite; }
+  @keyframes pulse { 50% { transform: scale(.6); opacity: .5; } }
+
+  /* Board */
+  .board {
+    background: var(--board); padding: clamp(6px, 2vw, 12px); border-radius: 18px;
+    border-bottom: 7px solid var(--board-edge); box-shadow: var(--shadow);
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .grid { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); }
+  .cell { aspect-ratio: 1; position: relative; padding: 4%; }
+  .cell::before {
+    content: ""; position: absolute; inset: 4%; border-radius: 12%;
+    background: var(--cell); transition: background .15s;
+  }
+  .cell.target { cursor: pointer; }
+  .cell.target:hover::before { background: var(--cell-hover); }
+  .cell.move::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 22%; height: 22%;
+    transform: translate(-50%, -50%); border-radius: 50%; background: var(--accent); opacity: .55;
+    transition: transform .15s, opacity .15s;
+  }
+  .cell.move:hover::after { transform: translate(-50%, -50%) scale(1.35); opacity: .9; }
+
+  .piece {
+    position: absolute; inset: 11%; border-radius: 20%; color: #fff;
+    display: grid; place-items: center;
+    box-shadow: 0 0 0 1px var(--piece-ring), inset 0 -4px 0 rgba(0, 0, 0, .22), 0 3px 6px rgba(0, 0, 0, .18);
+  }
+  .piece svg { width: 58%; height: 58%; }
+  .piece.o0 { background: linear-gradient(160deg, #f27aa3, var(--p0) 60%, var(--p0-edge)); }
+  .piece.o1 { background: linear-gradient(160deg, #4a5061, var(--p1) 60%, var(--p1-edge)); }
+  .piece.pop { animation: pop .32s cubic-bezier(.3, 1.6, .5, 1) both; }
+  @keyframes pop { from { transform: scale(.2); opacity: 0; } }
+  .piece.last { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .ghost { opacity: .32; box-shadow: none; pointer-events: none; transition: opacity .15s; }
+  .cell.place:hover .ghost { opacity: .7; }
+
+  .totems { position: absolute; inset: 0; pointer-events: none; }
+  .totem {
+    position: absolute; left: 0; top: 0; width: calc(100% / 6); height: calc(100% / 6);
+    padding: 7%; pointer-events: auto; cursor: default; z-index: 2;
+    transition: transform .38s cubic-bezier(.3, .75, .3, 1);
+  }
+  .totem-body {
+    width: 100%; height: 100%; border-radius: 50%; color: var(--totem-ink);
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, #fffaf0, var(--totem) 55%, var(--totem-edge));
+    box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .14), 0 6px 12px rgba(0, 0, 0, .28);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .totem-body svg { width: 56%; height: 56%; }
+  .totem.usable { cursor: pointer; }
+  .totem.usable .totem-body { animation: bob 2.4s ease-in-out infinite; }
+  .totem.usable:hover .totem-body { transform: translateY(-3px) scale(1.04); animation: none; }
+  .totem.selected .totem-body {
+    animation: none; transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 0 3px var(--accent), inset 0 -5px 0 rgba(0, 0, 0, .14), 0 10px 18px rgba(0, 0, 0, .3);
+  }
+  .totem.ai-moving .totem-body { box-shadow: 0 0 0 3px var(--p1), inset 0 -5px 0 rgba(0, 0, 0, .14), 0 10px 18px rgba(0, 0, 0, .3); }
+  @keyframes bob { 50% { transform: translateY(-2px); } }
+
+  .board.finished .piece:not(.win), .board.finished .totem { filter: saturate(.3) brightness(.85); opacity: .7; transition: filter .4s, opacity .4s; }
+  .piece.win { animation: win 1s ease-in-out infinite; z-index: 3; outline: 3px solid var(--win); outline-offset: 2px; }
+  @keyframes win { 50% { transform: scale(1.08); } }
+
+  /* Rules */
+  details { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px 16px; }
+  summary { cursor: pointer; font-weight: 600; padding: 10px 0; }
+  details ul { margin: 0 0 12px; padding-left: 20px; line-height: 1.5; font-size: .92rem; }
+  details li + li { margin-top: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .piece.pop, .piece.win, .totem.usable .totem-body, .status.thinking .chip { animation: none; }
+    .totem { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>OXONO</h1>
+    <p class="subtitle">Line up four of your colour, or four of one symbol.</p>
+  </header>
+
+  <section class="players" aria-label="Players">
+    <div class="player" id="player-0">
+      <div class="label"><span class="chip o0"></span>You</div>
+      <div class="value" id="score-0">0</div>
+      <div class="reserve" id="reserve-0"></div>
+    </div>
+    <div class="draws">
+      <div class="label">Draws</div>
+      <div class="value" id="score-draw">0</div>
+    </div>
+    <div class="player" id="player-1">
+      <div class="label"><span class="chip o1"></span>Computer</div>
+      <div class="value" id="score-1">0</div>
+      <div class="reserve" id="reserve-1"></div>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="group">Level
+      <div class="seg" id="level">
+        <button data-level="easy">Easy</button>
+        <button data-level="medium">Medium</button>
+        <button data-level="hard">Hard</button>
+      </div>
+    </div>
+    <div class="group">First
+      <div class="seg" id="first">
+        <button data-first="human">You</button>
+        <button data-first="ai">CPU</button>
+      </div>
+    </div>
+    <button class="btn" id="new-game">New game</button>
+  </section>
+
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <div class="board" id="board">
+    <div class="grid" id="grid">
+      <div class="totems" id="totems"></div>
+    </div>
+  </div>
+
+  <details>
+    <summary>How to play</summary>
+    <ul>
+      <li>Each player has 16 pieces: 8 marked <b>X</b> and 8 marked <b>O</b>. You're pink, the computer is black.</li>
+      <li>On your turn, <b>move one totem</b> (X or O) any distance up, down, left or right. It can't pass over pieces or the other totem.</li>
+      <li>Then <b>place one of your pieces</b> with that totem's symbol on an empty square right next to it (not diagonally).</li>
+      <li><b>Win</b> by lining up four pieces in a row or column that are all <b>your colour</b>, or all the <b>same symbol</b> in any colours. Whoever completes the line wins. Diagonals don't count.</li>
+      <li>If a totem is boxed in on all four sides, it can jump over the pieces in a straight line to the first empty square. If it can't jump anywhere, it can move to any empty square.</li>
+      <li>If there's no empty square next to the totem, you may place your piece on any empty square.</li>
+      <li>You can only move a totem if you still have pieces of its symbol. If all 32 pieces are placed with no line of four, it's a draw.</li>
+      <li>To change your mind after moving a totem, click it again (or press Esc) before placing your piece.</li>
+    </ul>
+  </details>
+</main>
+
+<script>
+// ENGINE START
+// Pure game rules and AI. No DOM access, so it can be tested on its own.
+const N = 6, SIZE = N * N, X = 0, O = 1, PER_SYMBOL = 8, WIN = 1e6;
+const SYMBOL_NAME = ['X', 'O'];
+
+// A board cell holds 0 (empty) or 1 + owner * 2 + symbol.
+const code = (owner, sym) => 1 + owner * 2 + sym;
+const ownerOf = v => (v - 1) >> 1;
+const symOf = v => (v - 1) & 1;
+const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+// Every run of four cells in a row or column, and the runs through each cell.
+const WINDOWS = [];
+for (let r = 0; r < N; r++) {
+  for (let c = 0; c <= N - 4; c++) {
+    WINDOWS.push([0, 1, 2, 3].map(k => r * N + c + k));
+    WINDOWS.push([0, 1, 2, 3].map(k => (c + k) * N + r));
+  }
+}
+const WINDOWS_AT = Array.from({ length: SIZE }, (_, i) => WINDOWS.filter(w => w.includes(i)));
+
+function newState() {
+  // Totems start on a random diagonal of the centre 2x2.
+  const pairs = [[2 * N + 2, 3 * N + 3], [2 * N + 3, 3 * N + 2]];
+  const pair = pairs[Math.floor(Math.random() * 2)];
+  if (Math.random() < 0.5) pair.reverse();
+  return {
+    board: new Array(SIZE).fill(0),
+    totems: pair, // totems[X], totems[O]
+    pieces: [[PER_SYMBOL, PER_SYMBOL], [PER_SYMBOL, PER_SYMBOL]], // pieces[player][symbol]
+  };
+}
+
+const cloneState = s => ({ board: s.board.slice(), totems: s.totems.slice(), pieces: s.pieces.map(p => p.slice()) });
+const isFree = (s, i) => s.board[i] === 0 && i !== s.totems[0] && i !== s.totems[1];
+const piecesLeft = s => s.pieces[0][0] + s.pieces[0][1] + s.pieces[1][0] + s.pieces[1][1];
+
+function freeCells(s) {
+  const out = [];
+  for (let i = 0; i < SIZE; i++) if (isFree(s, i)) out.push(i);
+  return out;
+}
+
+// Squares totem t can move to.
+function totemDests(s, t) {
+  const pos = s.totems[t], r = (pos / N) | 0, c = pos % N, out = [];
+  for (const [dr, dc] of DIRS) {
+    let rr = r + dr, cc = c + dc;
+    while (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(s, rr * N + cc)) {
+      out.push(rr * N + cc);
+      rr += dr; cc += dc;
+    }
+  }
+  if (out.length) return out;
+  // Enclosed: jump over the neighbouring pieces to the first free square beyond.
+  for (const [dr, dc] of DIRS) {
+    let rr = r + dr, cc = c + dc;
+    while (rr >= 0 && rr < N && cc >= 0 && cc < N && !isFree(s, rr * N + cc)) { rr += dr; cc += dc; }
+    if (rr >= 0 && rr < N && cc >= 0 && cc < N) out.push(rr * N + cc);
+  }
+  return out.length ? out : freeCells(s);
+}
+
+// Squares a piece may go on once a totem stands at `at`.
+function placements(s, at) {
+  const r = (at / N) | 0, c = at % N, out = [];
+  for (const [dr, dc] of DIRS) {
+    const rr = r + dr, cc = c + dc;
+    if (rr >= 0 && rr < N && cc >= 0 && cc < N && isFree(s, rr * N + cc)) out.push(rr * N + cc);
+  }
+  return out.length ? out : freeCells(s);
+}
+
+function genMoves(s, p) {
+  const moves = [];
+  for (const t of [X, O]) {
+    if (!s.pieces[p][t]) continue;
+    const from = s.totems[t];
+    for (const dest of totemDests(s, t)) {
+      s.totems[t] = dest;
+      for (const place of placements(s, dest)) moves.push({ t, from, dest, place });
+    }
+    s.totems[t] = from;
+  }
+  return moves;
+}
+
+function windowWins(board, w) {
+  const v0 = board[w[0]];
+  if (!v0) return false;
+  let sameOwner = true, sameSym = true;
+  for (let k = 1; k < 4; k++) {
+    const v = board[w[k]];
+    if (!v) return false;
+    if (ownerOf(v) !== ownerOf(v0)) sameOwner = false;
+    if (symOf(v) !== symOf(v0)) sameSym = false;
+  }
+  return sameOwner || sameSym;
+}
+
+// The winning run of four through cell idx, or null.
+function winningLine(board, idx) {
+  for (const w of WINDOWS_AT[idx]) if (windowWins(board, w)) return w;
+  return null;
+}
+
+// Plays move m for player p. Returns the winning line if it wins.
+function applyMove(s, m, p) {
+  s.totems[m.t] = m.dest;
+  s.board[m.place] = code(p, m.t);
+  s.pieces[p][m.t]--;
+  return winningLine(s.board, m.place);
+}
+
+function undoMove(s, m, p) {
+  s.board[m.place] = 0;
+  s.totems[m.t] = m.from;
+  s.pieces[p][m.t]++;
+}
+
+// Static score from the point of view of pm, the player about to move.
+function evaluate(s, pm) {
+  let score = 0;
+  for (const w of WINDOWS) {
+    let mine = 0, theirs = 0, xs = 0, os = 0;
+    for (const i of w) {
+      const v = s.board[i];
+      if (!v) continue;
+      if (ownerOf(v) === pm) mine++; else theirs++;
+      if (symOf(v) === X) xs++; else os++;
+    }
+    // Colour lines belong to one player.
+    if (mine && !theirs) score += mine === 3 ? 50 : mine === 2 ? 6 : 1;
+    else if (theirs && !mine) score -= theirs === 3 ? 30 : theirs === 2 ? 6 : 1;
+    // An open line of three of one symbol is a chance for whoever moves next.
+    if (xs === 3 && !os && s.pieces[pm][X]) score += 40;
+    if (os === 3 && !xs && s.pieces[pm][O]) score += 40;
+  }
+  return score;
+}
+
+const ABORT = {};
+let nodes = 0, budget = Infinity;
+
+// Negamax with alpha-beta pruning; depth counts whole turns.
+function search(s, depth, alpha, beta, p) {
+  const moves = genMoves(s, p);
+  if (!moves.length) return 0;
+  nodes += moves.length;
+  if (nodes > budget) throw ABORT;
+  let best = -Infinity;
+  for (const m of moves) {
+    const won = applyMove(s, m, p);
+    let score;
+    if (won) score = WIN + depth; // prefer quicker wins
+    else if (!piecesLeft(s)) score = 0;
+    else if (depth === 1) score = -evaluate(s, 1 - p);
+    else score = -search(s, depth - 1, -beta, -alpha, 1 - p);
+    undoMove(s, m, p);
+    if (score > best) best = score;
+    if (best > alpha) alpha = best;
+    if (alpha >= beta) break;
+  }
+  return best;
+}
+
+function rootSearch(s, p, moves, depth) {
+  let bestScore = -Infinity, best = moves[0];
+  for (const m of moves) {
+    applyMove(s, m, p);
+    let score;
+    if (!piecesLeft(s)) score = 0;
+    else if (depth === 1) score = -evaluate(s, 1 - p);
+    else score = -search(s, depth - 1, -Infinity, -bestScore, 1 - p);
+    undoMove(s, m, p);
+    if (score > bestScore) { bestScore = score; best = m; }
+  }
+  return best;
+}
+
+const LEVELS = {
+  easy:   { depth: 1, random: 0.3 },
+  medium: { depth: 2, random: 0 },
+  hard:   { depth: 4, random: 0 },
+};
+// Cap on positions examined at depth 3+, so a crowded mid-game can't stall the page.
+const HARD_BUDGET = 2000000;
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function chooseMove(state, p, level) {
+  const cfg = LEVELS[level];
+  const s = cloneState(state);
+  // Shuffled so equally good moves vary from game to game.
+  const moves = shuffle(genMoves(s, p));
+  for (const m of moves) {
+    const won = applyMove(s, m, p);
+    undoMove(s, m, p);
+    if (won) return m;
+  }
+  if (Math.random() < cfg.random) return moves[Math.floor(Math.random() * moves.length)];
+  if (cfg.depth < 3) return rootSearch(s, p, moves, cfg.depth);
+  try {
+    nodes = 0; budget = HARD_BUDGET;
+    return rootSearch(s, p, moves, cfg.depth);
+  } catch (e) {
+    if (e !== ABORT) throw e;
+    // Too many positions to look that far ahead in time: settle for 2 turns.
+    budget = Infinity;
+    return rootSearch(cloneState(state), p, moves, 2);
+  } finally {
+    budget = Infinity;
+  }
+}
+// ENGINE END
+
+(() => {
+  const HUMAN = 0, AI = 1;
+  const SYMBOL_SVG = [
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.6" fill="none" stroke="currentColor" stroke-width="3.4"/></svg>',
+  ];
+
+  const boardEl = document.getElementById('board');
+  const gridEl = document.getElementById('grid');
+  const totemsEl = document.getElementById('totems');
+  const statusEl = document.getElementById('status');
+
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem('oxono-' + key); return v === null ? fallback : JSON.parse(v); }
+      catch { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem('oxono-' + key, JSON.stringify(value)); } catch { /* ignore */ }
+    },
+  };
+
+  let level = store.get('level', 'medium');
+  let first = store.get('first', 'human');
+  let scores = store.get('scores', { 0: 0, 1: 0, draw: 0 });
+
+  let s, turn, over, busy, gameId = 0;
+  // Human turn: 'pick' a totem and destination, then 'place' a piece.
+  let phase, sel, selFrom;
+  let lastPiece = null;
+
+  // ---------- Build DOM ----------
+  const cells = [];
+  for (let i = 0; i < SIZE; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.idx = i;
+    gridEl.insertBefore(cell, totemsEl);
+    cells.push(cell);
+  }
+  const totemEls = [X, O].map(t => {
+    const el = document.createElement('div');
+    el.className = 'totem';
+    el.dataset.t = t;
+    el.setAttribute('aria-label', SYMBOL_NAME[t] + ' totem');
+    el.innerHTML = `<div class="totem-body">${SYMBOL_SVG[t]}</div>`;
+    totemsEl.appendChild(el);
+    return el;
+  });
+
+  function pieceEl(owner, sym, extra = '') {
+    const el = document.createElement('div');
+    el.className = `piece o${owner} ${extra}`;
+    el.innerHTML = SYMBOL_SVG[sym];
+    return el;
+  }
+
+  // ---------- Rendering ----------
+  function positionTotems() {
+    for (const t of [X, O]) {
+      const pos = s.totems[t];
+      totemEls[t].style.transform = `translate(${(pos % N) * 100}%, ${((pos / N) | 0) * 100}%)`;
+    }
+  }
+
+  function renderReserves() {
+    for (const p of [HUMAN, AI]) {
+      document.getElementById('reserve-' + p).innerHTML = [X, O].map(t =>
+        `<span class="mini o${p}">${SYMBOL_SVG[t]}</span><b class="${s.pieces[p][t] ? '' : 'empty'}">${s.pieces[p][t]}</b>`
+      ).join('');
+      document.getElementById('player-' + p).classList.toggle('active', !over && turn === p);
+    }
+  }
+
+  function renderScores() {
+    document.getElementById('score-0').textContent = scores[0];
+    document.getElementById('score-1').textContent = scores[1];
+    document.getElementById('score-draw').textContent = scores.draw;
+  }
+
+  function setStatus(html, owner = null, thinking = false) {
+    statusEl.className = 'status' + (thinking ? ' thinking' : '');
+    statusEl.innerHTML = (owner !== null ? `<span class="chip o${owner}"></span>` : '') + `<span>${html}</span>`;
+  }
+
+  function updateStatus() {
+    if (over) return;
+    if (turn === AI) return setStatus('Computer is thinking…', AI, true);
+    if (phase === 'place') return setStatus(`Place an ${SYMBOL_NAME[sel]} next to the totem`, HUMAN);
+    if (sel !== null) return setStatus(`Move the ${SYMBOL_NAME[sel]} totem to a marked square`, HUMAN);
+    const usable = [X, O].filter(t => s.pieces[HUMAN][t]);
+    if (usable.length === 1) return setStatus(`Your turn: you only have ${SYMBOL_NAME[usable[0]]} pieces left, so move the ${SYMBOL_NAME[usable[0]]} totem`, HUMAN);
+    setStatus('Your turn: pick a totem to move', HUMAN);
+  }
+
+  const canAct = () => !over && !busy && turn === HUMAN;
+
+  // Marks the squares the player can click right now.
+  function refreshTargets() {
+    for (const cell of cells) {
+      cell.classList.remove('target', 'move', 'place');
+      cell.querySelector('.ghost')?.remove();
+    }
+    for (const t of [X, O]) {
+      totemEls[t].classList.toggle('usable', canAct() && !!s.pieces[HUMAN][t]);
+      totemEls[t].classList.toggle('selected', canAct() && sel === t);
+    }
+    if (!canAct() || sel === null) return;
+    if (phase === 'pick') {
+      for (const i of totemDests(s, sel)) cells[i].classList.add('target', 'move');
+    } else {
+      for (const i of placements(s, s.totems[sel])) {
+        cells[i].classList.add('target', 'place');
+        cells[i].appendChild(pieceEl(HUMAN, sel, 'ghost'));
+      }
+    }
+  }
+
+  function refresh() {
+    positionTotems();
+    renderReserves();
+    updateStatus();
+    refreshTargets();
+  }
+
+  // ---------- Turn flow ----------
+  function newGame() {
+    gameId++;
+    s = newState();
+    over = false;
+    busy = false;
+    phase = 'pick';
+    sel = null;
+    lastPiece = null;
+    turn = first === 'human' ? HUMAN : AI;
+    boardEl.classList.remove('finished');
+    for (const cell of cells) cell.querySelectorAll('.piece').forEach(el => el.remove());
+    refresh();
+    if (turn === AI) aiTurn();
+  }
+
+  function finishTurn(m, p) {
+    const line = applyMove(s, m, p);
+    const el = pieceEl(p, m.t, 'pop last');
+    lastPiece?.classList.remove('last');
+    cells[m.place].appendChild(el);
+    lastPiece = el;
+    phase = 'pick';
+    sel = null;
+    if (line) return endGame(p, line);
+    if (!piecesLeft(s)) return endGame(null, null);
+    turn = 1 - p;
+    refresh();
+    if (turn === AI) aiTurn();
+  }
+
+  function aiTurn() {
+    busy = true;
+    refresh();
+    const id = gameId, started = performance.now();
+    // Let the "thinking" status paint before the search blocks the page.
+    setTimeout(() => {
+      if (id !== gameId) return;
+      const m = chooseMove(s, AI, level);
+      const wait = Math.max(0, 500 - (performance.now() - started));
+      setTimeout(() => {
+        if (id !== gameId) return;
+        // Slide the totem first, then drop the piece.
+        s.totems[m.t] = m.dest;
+        totemEls[m.t].classList.add('ai-moving');
+        positionTotems();
+        setTimeout(() => {
+          if (id !== gameId) return;
+          totemEls[m.t].classList.remove('ai-moving');
+          s.totems[m.t] = m.from;
+          busy = false;
+          finishTurn(m, AI);
+        }, 450);
+      }, wait);
+    }, 40);
+  }
+
+  function endGame(winner, line) {
+    over = true;
+    refresh();
+    boardEl.classList.add('finished');
+    if (winner === null) {
+      scores.draw++;
+      setStatus("All pieces are placed. It's a draw.");
+    } else {
+      scores[winner]++;
+      for (const i of line) cells[i].querySelector('.piece').classList.add('win');
+      lastPiece?.classList.remove('last');
+      const vals = line.map(i => s.board[i]);
+      const byColour = vals.every(v => ownerOf(v) === winner);
+      const how = byColour
+        ? (winner === HUMAN ? 'four pink pieces in a line' : 'four black pieces in a line')
+        : `four ${SYMBOL_NAME[symOf(vals[0])]}s in a line`;
+      setStatus(winner === HUMAN ? `You win with ${how}!` : `The computer wins with ${how}.`, winner);
+    }
+    store.set('scores', scores);
+    renderScores();
+  }
+
+  // Puts a moved-but-not-placed totem back where it was.
+  function undoTotem() {
+    if (phase !== 'place') return;
+    s.totems[sel] = selFrom;
+    phase = 'pick';
+  }
+
+  function onTotemClick(t) {
+    if (!canAct()) return;
+    if (!s.pieces[HUMAN][t]) {
+      setStatus(`You have no ${SYMBOL_NAME[t]} pieces left, so you can only move the ${SYMBOL_NAME[1 - t]} totem`, HUMAN);
+      return;
+    }
+    if (phase === 'place') { undoTotem(); sel = t; }
+    else sel = sel === t ? null : t;
+    refresh();
+  }
+
+  function onCellClick(i) {
+    if (!canAct() || sel === null) return;
+    if (phase === 'pick') {
+      if (!totemDests(s, sel).includes(i)) return;
+      selFrom = s.totems[sel];
+      s.totems[sel] = i;
+      phase = 'place';
+      refresh();
+    } else {
+      const dest = s.totems[sel];
+      if (!placements(s, dest).includes(i)) return;
+      s.totems[sel] = selFrom;
+      finishTurn({ t: sel, from: selFrom, dest, place: i }, HUMAN);
+    }
+  }
+
+  // ---------- Events ----------
+  gridEl.addEventListener('click', e => {
+    const totem = e.target.closest('.totem');
+    if (totem) return onTotemClick(+totem.dataset.t);
+    const cell = e.target.closest('.cell');
+    if (cell) onCellClick(+cell.dataset.idx);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && canAct()) {
+      if (phase === 'place') undoTotem(); else sel = null;
+      refresh();
+    }
+  });
+
+  function syncButtons() {
+    for (const b of document.querySelectorAll('#level button')) b.setAttribute('aria-pressed', b.dataset.level === level);
+    for (const b of document.querySelectorAll('#first button')) b.setAttribute('aria-pressed', b.dataset.first === first);
+  }
+  document.getElementById('level').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    level = b.dataset.level;
+    store.set('level', level);
+    syncButtons();
+  });
+  document.getElementById('first').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    first = b.dataset.first;
+    store.set('first', first);
+    syncButtons();
+    if (piecesLeft(s) === 4 * PER_SYMBOL && phase === 'pick' && sel === null) newGame(); // apply before the first move
+  });
+  document.getElementById('new-game').addEventListener('click', newGame);
+
+  syncButtons();
+  renderScores();
+  newGame();
+})();
+</script>
+</body>
+</html>
