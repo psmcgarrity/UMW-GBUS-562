@@ -1,10 +1,11 @@
-"""ask.py - answer questions about Copperline Manufacturing's finance documents.
+"""ask.py - answer questions about a folder of documents (default: copperline-docs).
 
 A small retrieval-augmented generation (RAG) tool:
-  1. Split every document in copperline-docs/ into self-contained chunks
+  1. Split every document in the document folder into self-contained chunks
      (one chunk per section, each starting with its document title and heading).
   2. Store the chunks in a local Chroma database using Chroma's built-in
-     embedding model.
+     embedding model. Each document folder gets its own database under
+     week-03/chroma_db/ (git-ignored).
   3. For each question, retrieve the 4 most similar chunks and ask Claude to
      answer using only those chunks, citing the source file for each fact.
 
@@ -12,6 +13,8 @@ Usage (from the top of the repository):
   .venv\\Scripts\\python.exe week-03\\ask.py "How much can I spend on dinner in Boston?"
   .venv\\Scripts\\python.exe week-03\\ask.py              (interactive: ask several questions)
   .venv\\Scripts\\python.exe week-03\\ask.py --rebuild    (re-index after adding/removing documents)
+  .venv\\Scripts\\python.exe week-03\\ask.py --docs week-03\\larkfield-docs "What is the overdraft fee?"
+  .venv\\Scripts\\python.exe week-03\\ask.py --save week-03\\runs\\q1.txt "..."   (also save the output to a file)
 
 Supported document types: .html/.htm, .pdf, .md/.markdown, .txt
 """
@@ -32,12 +35,16 @@ from pathlib import Path
 # Settings
 # --------------------------------------------------------------------------- #
 HERE = Path(__file__).resolve().parent              # .../UMW-GBUS-562/week-03
-DOCS_DIR = HERE / "copperline-docs"
-DB_DIR = HERE / "chroma_db"                         # git-ignored
-FINGERPRINT_FILE = DB_DIR / "docs_fingerprint.json"
+DEFAULT_DOCS_DIR = HERE / "copperline-docs"
+DB_ROOT = HERE / "chroma_db"                        # git-ignored; one sub-folder per document folder
 API_KEY_FILE = HERE.parents[1] / "API-Key.txt"      # GBUS-562-course/API-Key.txt (outside the repo)
 
-COLLECTION_NAME = "copperline_docs"
+# Set by use_docs_folder() from the --docs option.
+DOCS_DIR = DEFAULT_DOCS_DIR
+DB_DIR = DB_ROOT
+FINGERPRINT_FILE = DB_DIR / "docs_fingerprint.json"
+
+COLLECTION_NAME = "documents"
 MODEL = "claude-sonnet-5"
 TOP_K = 4
 PREVIEW_CHARS = 150
@@ -53,14 +60,14 @@ FORWARD_REFERENCE = re.compile(r"\b(as )?(described|explained|listed|shown|set o
 # document relies on, so its text is added as context to every other chunk.
 DEFINITIONS_HEADING = re.compile(r"^(how .+ works|definitions?|key terms|glossary|terms used)\b", re.I)
 
-SYSTEM_PROMPT = """You answer questions from Copperline Manufacturing employees about company finance policies.
+SYSTEM_PROMPT = """You answer questions about an organization's documents (policies, procedures, fee schedules, FAQs and similar).
 
 Rules:
-- Answer ONLY from the numbered sources provided in the user's message. Do not use outside knowledge or make assumptions about Copperline's policies.
+- Answer ONLY from the numbered sources provided in the user's message. Do not use outside knowledge or make assumptions about the organization's policies.
 - Cite the source file for every fact, in square brackets right after the fact, e.g. [travel-expense-policy.html].
 - If the sources do not contain the answer, say clearly that the provided documents don't answer the question. If they answer only part of it, answer that part and say what is missing.
 - Be concise and specific: give exact amounts, limits, deadlines, and approvers when the sources state them.
-- For a yes/no question, first work out the answer by comparing the facts in the question with the rule in the sources (for example, "$70 is under the $75 limit"). Then open with a verdict - Yes, No, or Partly - that agrees with that comparison, followed by the explanation. Use "Partly" when only some of the amount or request is allowed (for example, reimbursed up to a limit, with the rest at the employee's cost). Never give a verdict that your explanation contradicts."""
+- For a yes/no question, first work out the answer by comparing the facts in the question with the rule in the sources (for example, "$70 is under the $75 limit"). Then open with a verdict - Yes, No, or Partly - that agrees with that comparison, followed by the explanation. Use "Partly" when only some of the amount or request is allowed (for example, reimbursed up to a limit, with the rest at the person's own cost). Never give a verdict that your explanation contradicts."""
 
 
 # --------------------------------------------------------------------------- #
@@ -337,6 +344,21 @@ def docs_fingerprint() -> str:
 # --------------------------------------------------------------------------- #
 # Chroma database
 # --------------------------------------------------------------------------- #
+def use_docs_folder(docs_dir: Path) -> None:
+    """Point the tool at a document folder and its own database folder.
+
+    The database lives in chroma_db/<folder name>-<short hash of its full path>,
+    so two folders with the same name in different places never share a database.
+    """
+    global DOCS_DIR, DB_DIR, FINGERPRINT_FILE
+    DOCS_DIR = docs_dir.resolve()
+    if not DOCS_DIR.is_dir():
+        sys.exit(f"Document folder not found: {DOCS_DIR}")
+    path_hash = hashlib.sha256(str(DOCS_DIR).lower().encode()).hexdigest()[:8]
+    DB_DIR = DB_ROOT / f"{DOCS_DIR.name}-{path_hash}"
+    FINGERPRINT_FILE = DB_DIR / "docs_fingerprint.json"
+
+
 def get_client():
     import chromadb
     from chromadb.config import Settings
@@ -371,6 +393,7 @@ def build_index() -> None:
         print(f"  {path.relative_to(DOCS_DIR).as_posix()}: {len(chunks)} chunks")
         all_chunks.extend(chunks)
 
+    DB_DIR.mkdir(parents=True, exist_ok=True)
     client = get_client()
     try:
         client.delete_collection(COLLECTION_NAME)
@@ -399,7 +422,7 @@ def open_index():
     except Exception:
         saved = None
     if saved != docs_fingerprint():
-        print("Note: documents in copperline-docs have changed since the database was built.\n"
+        print(f"Note: documents in {DOCS_DIR.name} have changed since the database was built.\n"
               "      Run with --rebuild to include the changes.\n")
     return collection
 
@@ -451,9 +474,34 @@ def ask_claude(client, question: str, hits: list[dict]) -> str:
     return answer
 
 
-def answer_question(collection, claude, question: str) -> None:
+def get_answer(claude, question: str, hits: list[dict]) -> str:
+    """Claude's answer, or a readable error message if the API call fails."""
     import anthropic
+    try:
+        return ask_claude(claude, question, hits)
+    except anthropic.AuthenticationError:
+        return "Error: the API key was rejected. Check API-Key.txt."
+    except anthropic.NotFoundError as exc:
+        return f"Error: model or endpoint not found ({exc.message})."
+    except anthropic.RateLimitError:
+        return "Error: rate limited by the API. Wait a moment and try again."
+    except anthropic.APIStatusError as exc:
+        return f"Error from the Claude API ({exc.status_code}): {exc.message}"
+    except anthropic.APIConnectionError:
+        return "Error: could not connect to the Claude API. Check your internet connection."
 
+
+def save_run(path: Path, hits: list[dict], answer: str) -> None:
+    """Write each full chunk (rank, similarity, source), then a line ANSWER, then the answer."""
+    parts = [f"#{rank}  similarity {h['similarity']:.3f}  source: {h['metadata']['source']}\n"
+             f"{h['text'].strip()}\n"
+             for rank, h in enumerate(hits, 1)]
+    parts.append("ANSWER\n" + answer.strip() + "\n")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(parts), encoding="utf-8")
+
+
+def answer_question(collection, claude, question: str, save_to: Path | None = None) -> None:
     hits = retrieve(collection, question)
     print(f"\nTop {len(hits)} retrieved chunks:")
     for rank, h in enumerate(hits, 1):
@@ -462,18 +510,11 @@ def answer_question(collection, claude, question: str) -> None:
         print(f"       {preview}...")
 
     print("\nAnswer:")
-    try:
-        print(ask_claude(claude, question, hits))
-    except anthropic.AuthenticationError:
-        print("Error: the API key was rejected. Check API-Key.txt.")
-    except anthropic.NotFoundError as exc:
-        print(f"Error: model or endpoint not found ({exc.message}).")
-    except anthropic.RateLimitError:
-        print("Error: rate limited by the API. Wait a moment and try again.")
-    except anthropic.APIStatusError as exc:
-        print(f"Error from the Claude API ({exc.status_code}): {exc.message}")
-    except anthropic.APIConnectionError:
-        print("Error: could not connect to the Claude API. Check your internet connection.")
+    answer = get_answer(claude, question, hits)
+    print(answer)
+    if save_to:
+        save_run(save_to, hits, answer)
+        print(f"\n(Saved to {save_to})")
     print()
 
 
@@ -484,11 +525,19 @@ def main() -> None:
         except Exception:
             pass
 
-    parser = argparse.ArgumentParser(description="Ask questions about Copperline Manufacturing's finance documents.")
+    parser = argparse.ArgumentParser(description="Ask questions about a folder of documents.")
     parser.add_argument("question", nargs="*", help="your question (omit for interactive mode)")
+    parser.add_argument("--docs", type=Path, default=DEFAULT_DOCS_DIR, metavar="FOLDER",
+                        help="folder of documents to answer from (default: week-03/copperline-docs)")
     parser.add_argument("--rebuild", action="store_true",
-                        help="rebuild the database from copperline-docs (after adding or removing documents)")
+                        help="rebuild the database from the document folder (after adding or removing documents)")
+    parser.add_argument("--save", type=Path, metavar="FILE",
+                        help="also write the retrieved chunks and the answer to this text file (UTF-8)")
     args = parser.parse_args()
+    if args.save and not args.question:
+        parser.error("--save needs a question on the command line")
+
+    use_docs_folder(args.docs)
 
     if args.rebuild:
         print(f"Rebuilding the database from {DOCS_DIR} ...")
@@ -502,10 +551,10 @@ def main() -> None:
     claude = anthropic.Anthropic(api_key=load_api_key())
 
     if args.question:
-        answer_question(collection, claude, " ".join(args.question))
+        answer_question(collection, claude, " ".join(args.question), save_to=args.save)
         return
 
-    print("Ask a question about Copperline's finance documents (blank line or 'quit' to exit).")
+    print(f"Ask a question about the documents in {DOCS_DIR.name} (blank line or 'quit' to exit).")
     while True:
         try:
             q = input("\nQuestion: ").strip()

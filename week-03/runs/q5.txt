@@ -1,0 +1,26 @@
+#1  similarity 0.540  source: funds-availability-policy.html
+Document: Funds Availability Policy (Version 3)
+Section: Check deposits
+
+For checks deposited at a branch or a Larkfield ATM, the first $275 of the day's check deposits is available on the next business day. The rest of the day's check deposits is available on the second business day after the day of deposit.
+
+#2  similarity 0.485  source: funds-availability-policy.html
+Document: Funds Availability Policy (Version 3)
+Section: Mobile check deposits
+
+Checks deposited with the Larkfield mobile app follow the same availability as checks deposited at a branch. A member can deposit up to $5,000 per business day through the mobile app. Members should keep the paper check for 30 days after a mobile deposit, then destroy it.
+
+#3  similarity 0.423  source: funds-availability-policy.html
+Document: Funds Availability Policy (Version 3)
+Section: Business days and cutoff times
+
+A business day is Monday through Friday, except federal holidays. A deposit made before 5 p.m. on a business day is received that day. A deposit made after 5 p.m., or on a weekend or holiday, is received on the next business day.
+
+#4  similarity 0.420  source: funds-availability-policy.html
+Document: Funds Availability Policy (Version 3)
+Section: Cash, direct deposits, and wire transfers
+
+Cash deposited at a branch, direct deposits such as payroll, and incoming wire transfers are available on the business day they are received.
+
+ANSWER
+**Partly.** Since the paycheck was deposited as a check at a branch (not a direct deposit), it falls under the check deposit rule: only the first $275 of the day's check deposits is available on the next business day, with the remainder available on the second business day after deposit [funds-availability-policy.html]. So of the $2,000 check, the member can use **$275** on the next business day, and the remaining **$1,725** will be available the following business day [funds-availability-policy.html].
