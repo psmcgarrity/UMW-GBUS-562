@@ -1,0 +1,54 @@
+Sender:  kevin.walsh@ridgelinehotels.example
+Subject: Time off for a funeral
+Email:   week-04\ridgeline-hotels\sample-emails\02-kevin-bereavement.eml
+Org:     ridgeline-hotels
+Model:   claude-sonnet-5
+
+Organization: Ridgeline Hotels (ridgeline-hotels)
+Employee file: email column 'Email Address'; balance columns: 'PTO Days Remaining', 'Sick Days Remaining'
+Employee mode: get_leave_balance returns only kevin.walsh@ridgelinehotels.example's balance.
+ridgeline-hotels MCP server ready (stdio).
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: search_policy
+  input:  {"query": "bereavement leave grandparent funeral paid days"}
+  result: {
+  "query": "bereavement leave grandparent funeral paid days",
+  "results": [
+    {
+      "source": "bereavement-and-family-leave.html",
+      "title": "Bereavement and Family Leave",
+      "section": "Bereavement leave",
+      "similarity": 0.755,
+      "text": "Document: Bereavement and Family Le...
+
+Step 2: save_reply
+  input:  reply_text (557 characters), needs_human_review: false
+  result: Draft saved (not sent) to week-04\drafts\20261116-211739-kevin.walsh.txt.
+
+Claude's final message: Reply drafted and saved for HR review.
+
+============================================================
+Stopped: Claude finished after saving the draft (reply was not a tool request).
+Tool calls: 2
+============================================================
+Saved to week-04\drafts\20261116-211739-kevin.walsh.txt
+*** NOT SENT ***
+To: kevin.walsh@ridgelinehotels.example
+Subject: Re: Time off for a funeral
+Organization: ridgeline-hotels
+Drafted: 2026-11-16T21:17:39 by claude-sonnet-5
+DRAFT
+Hi Kevin,
+
+I'm sorry for the loss of your grandmother.
+
+Under the Bereavement and Family Leave policy, after the death of a grandparent you are eligible for up to 3 paid days off. These days don't need to be taken in a row, but must be used within 60 days of the death (source: bereavement-and-family-leave.html).
+
+To arrange this, just let your supervisor know as soon as you can - no documentation is required, and this leave does not reduce your PTO or sick balance (source: bereavement-and-family-leave.html).
+
+Best,
+People and Culture, Ridgeline Hotels
+Needs human review: false
+
+Tokens - input: 7,169  output: 351

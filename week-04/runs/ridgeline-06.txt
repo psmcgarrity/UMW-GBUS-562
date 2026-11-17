@@ -1,0 +1,56 @@
+Sender:  danielle.price@ridgelinehotels.example
+Subject: A guest
+Email:   week-04\ridgeline-hotels\sample-emails\06-danielle-guest.eml
+Org:     ridgeline-hotels
+Model:   claude-sonnet-5
+
+Organization: Ridgeline Hotels (ridgeline-hotels)
+Employee file: email column 'Email Address'; balance columns: 'PTO Days Remaining', 'Sick Days Remaining'
+Employee mode: get_leave_balance returns only danielle.price@ridgelinehotels.example's balance.
+ridgeline-hotels MCP server ready (stdio).
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: search_policy
+  input:  {"query": "reporting harassment guest concerns safety follow-up timeline retaliation"}
+  result: {
+  "query": "reporting harassment guest concerns safety follow-up timeline retaliation",
+  "results": [
+    {
+      "source": "reporting-concerns-and-safety.html",
+      "title": "Reporting Concerns and Workplace Safety",
+      "section": "Harassment by guests or coworkers",
+      "similarity": 0.6...
+
+Step 2: save_reply
+  input:  reply_text (1052 characters), needs_human_review: true
+  result: Draft saved (not sent) to week-04\drafts\20261116-211834-danielle.price.txt.
+
+Claude's final message: I've drafted a reply to Danielle and flagged it for human review given the harassment and safety concerns involved.
+
+============================================================
+Stopped: Claude finished after saving the draft (reply was not a tool request).
+Tool calls: 2
+============================================================
+Saved to week-04\drafts\20261116-211834-danielle.price.txt
+*** NOT SENT ***
+To: danielle.price@ridgelinehotels.example
+Subject: Re: A guest
+Organization: ridgeline-hotels
+Drafted: 2026-11-16T21:18:34 by claude-sonnet-5
+DRAFT
+Hi Danielle,
+
+Thank you for reaching out, and I'm sorry you're going through this. Please know this is being taken seriously, and a person from People and Culture will follow up with you.
+
+A few relevant points from our policy:
+- Ridgeline doesn't tolerate harassment of team members by anyone, including guests. You can report it to your supervisor, to any manager, or directly to People and Culture, and a member of People and Culture will contact you within 1 business day of a report. (source: reporting-concerns-and-safety.html)
+- If you reported a concern and feel nothing was done, you can contact People and Culture directly, or call the confidential Team Member Line at any time. (source: reporting-concerns-and-safety.html)
+- Ridgeline prohibits retaliation against anyone who reports a concern in good faith. If you experience any retaliation, report it to People and Culture right away. (source: reporting-concerns-and-safety.html)
+
+Someone from People and Culture will be in touch with you soon.
+
+Best,
+People and Culture, Ridgeline Hotels
+Needs human review: true
+
+Tokens - input: 7,649  output: 604

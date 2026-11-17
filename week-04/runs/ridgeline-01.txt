@@ -1,0 +1,68 @@
+Sender:  jenna.morales@ridgelinehotels.example
+Subject: PTO question
+Email:   week-04\ridgeline-hotels\sample-emails\01-jenna-pto.eml
+Org:     ridgeline-hotels
+Model:   claude-sonnet-5
+
+Organization: Ridgeline Hotels (ridgeline-hotels)
+Employee file: email column 'Email Address'; balance columns: 'PTO Days Remaining', 'Sick Days Remaining'
+Employee mode: get_leave_balance returns only jenna.morales@ridgelinehotels.example's balance.
+ridgeline-hotels MCP server ready (stdio).
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: get_leave_balance
+  input:  {}
+  result: {
+  "email": "jenna.morales@ridgelinehotels.example",
+  "employee_name": "Jenna Morales",
+  "hotel": "Ridgeline Boulder",
+  "role": "Front Desk Agent",
+  "supervisor": "Rachel Evans",
+  "pto_days_remaining": 8,
+  "sick_days_remaining": 5,
+  "source": "employees.csv"
+}
+
+Step 2: search_policy
+  input:  {"query": "PTO carryover unused days next year"}
+  result: {
+  "query": "PTO carryover unused days next year",
+  "results": [
+    {
+      "source": "pto-policy.html",
+      "title": "Paid Time Off (PTO) Policy",
+      "section": "Carrying PTO into next year",
+      "similarity": 0.739,
+      "text": "Document: Paid Time Off (PTO) Policy\nSection: Carrying P...
+
+Step 3: save_reply
+  input:  reply_text (467 characters), needs_human_review: false
+  result: Draft saved (not sent) to week-04\drafts\20261116-211728-jenna.morales.txt.
+
+Claude's final message: I've prepared and saved the reply to Jenna with her current PTO/sick balance and the carryover policy details, both cited to their sources.
+
+============================================================
+Stopped: Claude finished after saving the draft (reply was not a tool request).
+Tool calls: 3
+============================================================
+Saved to week-04\drafts\20261116-211728-jenna.morales.txt
+*** NOT SENT ***
+To: jenna.morales@ridgelinehotels.example
+Subject: Re: PTO question
+Organization: ridgeline-hotels
+Drafted: 2026-11-16T21:17:28 by claude-sonnet-5
+DRAFT
+Hi Jenna,
+
+Thanks for reaching out! Here's the information you asked for:
+
+- You currently have 8 PTO days remaining (and 5 sick days remaining) (source: employees.csv).
+- Regarding carryover: you can carry up to 3 unused PTO days into the next calendar year. Any unused days above 3 are paid out at your regular rate in the first paycheck of January (source: pto-policy.html).
+
+Let me know if you have any other questions.
+
+Best,
+People and Culture, Ridgeline Hotels
+Needs human review: false
+
+Tokens - input: 7,712  output: 400

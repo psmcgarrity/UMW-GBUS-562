@@ -1,0 +1,75 @@
+Sender:  brittany.cole@ridgelinehotels.example
+Subject: Honeymoon
+Email:   week-04\ridgeline-hotels\sample-emails\03-brittany-honeymoon.eml
+Org:     ridgeline-hotels
+Model:   claude-sonnet-5
+
+Organization: Ridgeline Hotels (ridgeline-hotels)
+Employee file: email column 'Email Address'; balance columns: 'PTO Days Remaining', 'Sick Days Remaining'
+Employee mode: get_leave_balance returns only brittany.cole@ridgelinehotels.example's balance.
+ridgeline-hotels MCP server ready (stdio).
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: get_leave_balance
+  input:  {}
+  result: {
+  "email": "brittany.cole@ridgelinehotels.example",
+  "employee_name": "Brittany Cole",
+  "hotel": "Ridgeline Taos",
+  "role": "Server",
+  "supervisor": "Amanda Ross",
+  "pto_days_remaining": 4,
+  "sick_days_remaining": 3,
+  "source": "employees.csv"
+}
+
+Step 2: search_policy
+  input:  {"query": "PTO request consecutive days off, not enough PTO options"}
+  result: {
+  "query": "PTO request consecutive days off, not enough PTO options",
+  "results": [
+    {
+      "source": "pto-policy.html",
+      "title": "Paid Time Off (PTO) Policy",
+      "section": "Requesting PTO",
+      "similarity": 0.73,
+      "text": "Document: Paid Time Off (PTO) Policy\nSection: Req...
+
+Step 3: save_reply
+  input:  reply_text (1396 characters), needs_human_review: false
+  result: Draft saved (not sent) to week-04\drafts\20261116-211753-brittany.cole.txt.
+
+Claude's final message: I've prepared and saved the reply to Brittany. Here's a summary:
+
+- Confirmed she has 4 PTO days remaining (she needs 6 for her honeymoon).
+- Explained the option to borrow up to 3 PTO days from future accrual, with GM approval and 30-day notice, noting that borrowed days are deducted from her final...
+
+============================================================
+Stopped: Claude finished after saving the draft (reply was not a tool request).
+Tool calls: 3
+============================================================
+Saved to week-04\drafts\20261116-211753-brittany.cole.txt
+*** NOT SENT ***
+To: brittany.cole@ridgelinehotels.example
+Subject: Re: Honeymoon
+Organization: ridgeline-hotels
+Drafted: 2026-11-16T21:17:53 by claude-sonnet-5
+DRAFT
+Hi Brittany,
+
+Congratulations on your upcoming wedding!
+
+I checked your balance, and you currently have 4 PTO days remaining (source: employees.csv). Since you'd like to take 6 consecutive days off, that's 2 days more than your current balance.
+
+Here's what you can do:
+- Borrowing PTO: Per the PTO Policy, if a planned absence is longer than your balance, you can borrow up to 3 PTO days from what you'll earn in the next six months. Borrowed days need your general manager's approval, and the request must be made at least 30 days ahead. If you leave Ridgeline before earning the borrowed days back, their value is deducted from your final paycheck (source: pto-policy.html). This would cover the extra 2 days you need.
+- Timing of the request: Since you're requesting 5 or more consecutive days, you'll need your supervisor's approval at least 30 days ahead of the dates (source: pto-policy.html).
+- Blackout dates: If any of your requested days fall on your hotel's blackout dates, you'd also need your general manager's approval, as PTO isn't normally approved on those dates (source: pto-policy.html).
+
+Since your wedding is about two months away, you have time to submit the request with enough notice. I'd recommend submitting your PTO request (including the borrowed days, if needed) through your hotel's scheduling system as soon as possible.
+
+Best,
+People and Culture, Ridgeline Hotels
+Needs human review: false
+
+Tokens - input: 8,074  output: 846

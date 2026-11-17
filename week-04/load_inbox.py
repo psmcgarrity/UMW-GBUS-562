@@ -1,12 +1,13 @@
 """load_inbox.py - put the sample HR emails into a Gmail sandbox inbox.
 
-It signs in to Gmail with IMAP and places each .eml file from
-week-04/hartwell-hr/sample-emails into the INBOX as an UNREAD message dated
-today. It uses IMAP APPEND, so nothing is sent: the messages are written
-directly into the mailbox.
+It signs in to Gmail with IMAP and places each .eml file from an organization's
+sample-emails/ folder (default week-04/hartwell-hr; --org picks another) into
+the INBOX as an UNREAD message dated today. It uses IMAP APPEND, so nothing is
+sent: the messages are written directly into the mailbox.
 
 Usage (from the top of the repository):
   .venv\\Scripts\\python.exe week-04\\load_inbox.py
+  .venv\\Scripts\\python.exe week-04\\load_inbox.py --org week-04\\ridgeline-hotels
 
 The login is read at run time from Agent-Email.txt in the folder above the
 repository. The password is never printed or written to a file.
@@ -20,6 +21,7 @@ and the password on the next, also work.) Gmail requires an App Password for IMA
 
 from __future__ import annotations
 
+import argparse
 import imaplib
 import re
 import sys
@@ -33,7 +35,7 @@ from pathlib import Path
 # Settings
 # --------------------------------------------------------------------------- #
 HERE = Path(__file__).resolve().parent                    # .../UMW-GBUS-562/week-04
-EMAILS_DIR = HERE / "hartwell-hr" / "sample-emails"
+DEFAULT_ORG_DIR = HERE / "hartwell-hr"
 LOGIN_FILE = HERE.parents[1] / "Agent-Email.txt"          # GBUS-562-course/Agent-Email.txt (outside the repo)
 
 IMAP_HOST = "imap.gmail.com"
@@ -103,8 +105,9 @@ def prepare_message(path: Path, to_address: str) -> bytes:
         msg = BytesParser(policy=policy.SMTP).parse(f)
     for header in ("Date", "Message-ID", "Delivered-To"):
         del msg[header]
+    sender_domain = str(msg.get("From", "")).rpartition("@")[2].strip(" >") or "localhost"
     msg["Date"] = formatdate(localtime=True)
-    msg["Message-ID"] = make_msgid(domain="hartwellfoods.example")
+    msg["Message-ID"] = make_msgid(domain=sender_domain)
     msg["Delivered-To"] = to_address
     return msg.as_bytes()
 
@@ -113,12 +116,16 @@ def prepare_message(path: Path, to_address: str) -> bytes:
 # Main
 # --------------------------------------------------------------------------- #
 def main() -> None:
-    files = sorted(EMAILS_DIR.glob("*.eml"))
+    parser = argparse.ArgumentParser(description="Place an organization's sample emails in the Gmail sandbox inbox.")
+    parser.add_argument("--org", type=Path, default=DEFAULT_ORG_DIR, metavar="FOLDER",
+                        help="organization folder with sample-emails/ (default: week-04/hartwell-hr)")
+    emails_dir = parser.parse_args().org / "sample-emails"
+    files = sorted(emails_dir.glob("*.eml"))
     if not files:
-        sys.exit(f"No .eml files found in {EMAILS_DIR}")
+        sys.exit(f"No .eml files found in {emails_dir}")
 
     email, password = load_login()
-    print(f"Signing in to {IMAP_HOST} as {email} ...")
+    print(f"Signing in to {IMAP_HOST} ...")      # the address is not printed
 
     try:
         imap = imaplib.IMAP4_SSL(IMAP_HOST, IMAP_PORT)

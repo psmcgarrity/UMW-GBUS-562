@@ -1,0 +1,53 @@
+Sender:  logan.brooks@ridgelinehotels.example
+Subject: Days off
+Email:   week-04\ridgeline-hotels\sample-emails\07-logan-seasonal.eml
+Org:     ridgeline-hotels
+Model:   claude-sonnet-5
+
+Organization: Ridgeline Hotels (ridgeline-hotels)
+Employee file: email column 'Email Address'; balance columns: 'PTO Days Remaining', 'Sick Days Remaining'
+Warning: no employee record matches logan.brooks@ridgelinehotels.example; get_leave_balance will return an error.
+Employee mode: get_leave_balance returns only logan.brooks@ridgelinehotels.example's balance.
+ridgeline-hotels MCP server ready (stdio).
+Tools offered: search_policy, get_leave_balance, save_reply
+
+Step 1: get_leave_balance
+  input:  {}
+  result (error): Error executing tool get_leave_balance: No employee record matches 'logan.brooks@ridgelinehotels.example'. Do NOT state, estimate or guess any leave balance in your reply. Tell the sender that HR could not find their record and a person from HR will confirm their balance.
+
+Step 2: save_reply
+  input:  reply_text (311 characters), needs_human_review: true
+  result: Draft saved (not sent) to week-04\drafts\20261116-211620-logan.brooks.txt.
+
+Claude's final message: I've saved a draft reply letting Logan know we couldn't locate their employee record, and flagged it for HR follow-up to confirm their PTO balance directly.
+
+[11/16/26 21:16:18] INFO     Tool 'get_leave_balance' failed:     server.py:453
+                             "Error executing tool                             
+                             get_leave_balance: No employee                    
+                             record matches                                    
+                             'logan.brooks@ridgelinehotels.exampl              
+                             e'. Do NOT state, estimate or guess               
+                             any leave balance in your reply.                  
+                             Tell the sender that HR could not                 
+                             find their record and a person from               
+                             HR will confirm their balance."                   
+============================================================
+Stopped: Claude finished after saving the draft (reply was not a tool request).
+Tool calls: 2
+============================================================
+Saved to week-04\drafts\20261116-211620-logan.brooks.txt
+*** NOT SENT ***
+To: logan.brooks@ridgelinehotels.example
+Subject: Re: Days off
+Organization: ridgeline-hotels
+Drafted: 2026-11-16T21:16:20 by claude-sonnet-5
+DRAFT
+Hi Logan,
+
+Thanks for reaching out. I wasn't able to find an employee record matching your email address, so I'm not able to confirm your PTO balance right now. A person from People and Culture will follow up to verify your record and confirm your remaining PTO days.
+
+Best,
+People and Culture, Ridgeline Hotels
+Needs human review: true
+
+Tokens - input: 5,736  output: 281
