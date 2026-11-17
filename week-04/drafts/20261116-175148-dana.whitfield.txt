@@ -1,0 +1,16 @@
+*** DRAFT - NOT SENT ***
+To: dana.whitfield@hartwellfoods.example
+Subject: Re: Vacation days
+Needs human review: no
+Drafted: 2026-11-16T17:51:48 by claude-sonnet-5
+------------------------------------------------------------
+Hi Dana,
+
+You currently have 9 vacation days left for this year (along with 6 sick days and 1 personal day). [source: employees.csv]
+
+Regarding carryover: you can carry up to 5 unused vacation days into the next calendar year. Any carried-over days must be used within the first three months of the new year, or they will be lost. Vacation days beyond that 5-day limit are forfeited at year-end and are not paid out. [source: leave-policy.html]
+
+Let me know if you have any other questions!
+
+Best,
+HR

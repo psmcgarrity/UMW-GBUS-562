@@ -1,0 +1,25 @@
+*** DRAFT - NOT SENT ***
+To: megan.turner@hartwellfoods.example
+Subject: Re: Family trip
+Needs human review: no
+Drafted: 2026-11-16T17:45:25 by claude-sonnet-5
+------------------------------------------------------------
+Hi Megan,
+
+Thanks for planning ahead! Here's what I found:
+
+- Your current vacation balance is 7 days.
+- Since you're asking for 10 business days, you'd be short by 3 days.
+
+Options:
+1. **Unpaid leave**: Per the Vacation and Time Off Policy (leave-policy.html), if a planned absence is longer than your vacation balance, you can request up to 5 days of unpaid leave to cover the difference. This needs approval from both your manager and HR, so you'd be covered for the extra 3 days this way.
+2. **Reduce the trip length** to 7 business days or fewer to stay within your current balance.
+
+Also, since this request is for more than 5 consecutive business days, the policy requires your manager's approval at least 10 business days in advance — so it's good that you're planning two months out.
+
+To move forward, let your manager (Lena Fischer) know the dates, and if you'd like to use unpaid leave for the extra days, let HR know as well so we can process that approval.
+
+Let me know if you have any other questions!
+
+Best,
+HR Assistant

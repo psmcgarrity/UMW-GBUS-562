@@ -221,3 +221,6 @@ __marimo__/
 
 # Week 3 RAG tool: local Chroma vector database (rebuild with: python week-03/ask.py --rebuild)
 chroma_db/
+
+# Week 4 agent: --inbox run output (contains the Gmail sandbox address)
+week-04/inbox-run.txt

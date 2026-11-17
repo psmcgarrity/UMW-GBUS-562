@@ -14,3 +14,4 @@ This repository contains coursework and materials from GBUS 562: AI Language Mod
 3. [week-03](week-03/): a RAG tool that answers questions from any folder of documents, built with Claude Code.
    - Defaults to Copperline Manufacturing's finance documents; `--docs` points it at another folder (each folder gets its own git-ignored Chroma database), and `--save` writes the retrieved chunks and answer to a text file.
    - Tested on Larkfield credit union documents; the test runs are in `week-03/runs/` and the results are in [writeup.md](week-03/writeup.md).
+4. [week-04](week-04/): an AI agent that prepares replies to HR emails using tools from an MCP server, built with Claude Code.
