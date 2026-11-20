@@ -75,4 +75,4 @@ The rules in code made the comparison fair. Both coordinators had to follow the 
 - **Still open:** the supplier writer is told to confirm "by the time they asked for". Northgate gave no deadline, so the writer invents one, and the reviewer rejects it under rule 2. That causes the remaining supplier rewrites. It could be fixed the same way, with a `decision_deadline` fact.
 
 ## Privacy Check
-All 11 saved supplier replies were scanned for every customer name and order number, and all 12 customer notices for supplier names, penalties, discounts and credits. Nothing was found. Northgate's reply didn't name any customer, even though Karen Walsh asked which customers were most affected.
+All 11 supplier replies and 12 customer notices produced during testing (`drafts/` keeps only the latest run of each email and coordinator) were scanned: the replies for every customer name and order number, the notices for supplier names, penalties, discounts and credits. Nothing was found. Northgate's reply didn't name any customer, even though Karen Walsh asked which customers were most affected.
