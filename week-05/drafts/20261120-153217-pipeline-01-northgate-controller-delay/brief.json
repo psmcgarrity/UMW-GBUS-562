@@ -1,0 +1,39 @@
+{
+  "part_id": "MC-500",
+  "what_changed": "PO-7781 for 400 MC-500 controllers was due in full on day 5; now 120 arrive on day 5 and the remaining 280 arrive on day 26.",
+  "orders_at_risk": [
+    {
+      "order_id": "O-1043",
+      "customer": "City of Ashford Bike Share",
+      "units_short": 10,
+      "ship_day": 14,
+      "ready_day": 26,
+      "late_penalty": true
+    },
+    {
+      "order_id": "O-1044",
+      "customer": "Main Street Bikes",
+      "units_short": 30,
+      "ship_day": 18,
+      "ready_day": 26,
+      "late_penalty": false
+    },
+    {
+      "order_id": "O-1045",
+      "customer": "Lakeview Rentals",
+      "units_short": 50,
+      "ship_day": 21,
+      "ready_day": 26,
+      "late_penalty": false
+    }
+  ],
+  "options": [],
+  "decisions_for_a_person": [
+    "Whether to take up Karen Walsh's offer to discuss other options this week, for example an earlier date for some of the remaining 280 controllers. Getting at least 10 more before day 14 would keep the penalty order O-1043 (City of Ashford Bike Share) on time.",
+    "Whether to tell Northgate which customers are affected, and how much to share, given that the supplier asked for this.",
+    "How and when to tell City of Ashford Bike Share (O-1043, late penalty), Main Street Bikes (O-1044) and Lakeview Rentals (O-1045) about the delays."
+  ],
+  "supplier_questions": [
+    "Which of Brookfield's customers are most affected by the delay, so Northgate can understand the impact."
+  ]
+}

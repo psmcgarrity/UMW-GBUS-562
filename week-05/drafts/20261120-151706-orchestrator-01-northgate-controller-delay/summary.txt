@@ -1,0 +1,21 @@
+Email:       01-northgate-controller-delay.eml - PO-7781 - MC-500 controllers - revised shipment schedule
+Coordinator: orchestrator
+Decision needed by a person: YES
+
+Northgate (Karen Walsh) has split PO-7781. Of the 400 MC-500 controllers, 120 still arrive on day 5 and the other 280 arrive three weeks later, on day 26. That leaves three customer orders short, and none of them can be finished before day 26:
+- O-1043, City of Ashford Bike Share: 10 units short, due to ship day 14. This order has a late penalty, so it's the most urgent.
+- O-1044, Main Street Bikes: 30 units short, due to ship day 18. No penalty.
+- O-1045, Lakeview Rentals: 50 units short, due to ship day 21. No penalty.
+In total we're 90 units short, and the orders will be 5 to 12 days late.
+
+A reply to Northgate is drafted, passed review and is saved as supplier-reply.txt. Nothing has been sent. The draft confirms the new schedule. It asks Northgate to ship more than 120 units on day 5 if they can, to send the rest early in smaller batches as units become available, and to commit to firm quantities and dates. It doesn't agree to any option yet. It shares only the 90-unit total and the 5 to 12 day delay, not customer names.
+
+I haven't drafted the customer notices yet. Talking to Northgate might change the dates, and the notices would be wrong if it does. I can draft them once you decide.
+
+Decisions for you:
+1. Whether to take up Karen's offer to discuss other options this week. Any option should be checked against what O-1043 needs before it's accepted.
+2. Whether to share anything about our customers with Northgate beyond the totals in the draft. Karen asked which customers are most affected.
+3. Whether and when to tell the three customers their orders will be late, starting with O-1043 because of its penalty. Tell me when to draft the notices.
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Karen Walsh

@@ -1,0 +1,12 @@
+Verdict:  APPROVED
+To:       Main Street Bikes <owner@mainstreetbikes.example>
+Subject:  Update on your order O-1044
+Dear Main Street Bikes,
+
+We're writing about order O-1044, for 30 Cargo E bikes. We're sorry to tell you that the order is now expected to ship 8 days later than planned.
+
+The delay comes from a late part from one of our suppliers. None of the bikes in this order can ship on the original date, so all 30 will go out together in a single shipment, 8 days after the planned ship date.
+
+We apologize for the inconvenience this causes you. If you have questions about the order, please reply to this email and our team will be glad to help.
+
+Customer Service, Brookfield Bicycle Company

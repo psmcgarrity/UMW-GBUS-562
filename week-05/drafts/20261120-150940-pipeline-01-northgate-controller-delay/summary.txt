@@ -1,0 +1,19 @@
+Email:       01-northgate-controller-delay.eml - PO-7781 - MC-500 controllers - revised shipment schedule
+Coordinator: pipeline
+Decision needed by a person: YES
+
+What changed: PO-7781 (400 MC-500 motor controllers) will now arrive in two parts: 120 on day 5 as scheduled and the remaining 280 on day 26 (three weeks later), instead of all 400 on day 5.
+Orders at risk:
+  - O-1043 City of Ashford Bike Share: 10 bikes, 12 days late - LATE PENALTY
+  - O-1044 Main Street Bikes: 30 bikes, 8 days late
+  - O-1045 Lakeview Rentals: 50 bikes, 5 days late
+Decisions for a person:
+  - Whether to take up Karen Walsh's offer to discuss other options, e.g. asking Northgate to get part of the remaining 280 controllers to Brookfield before day 14. O-1043 (City of Ashford Bike Share) has a late penalty and is short 10 bikes (90 of its 100 bikes ship on time; the other 10 are ready day 26). Any revised schedule should be checked with check_coverage before it's accepted.
+  - Whether and how to tell City of Ashford Bike Share (O-1043), Main Street Bikes (O-1044) and Lakeview Rentals (O-1045) about the delays.
+  - Whether to share customer names or order details with Northgate in reply to their question about which customers are most affected.
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Karen Walsh
+  - APPROVED        customer-O-1043.txt  to City of Ashford Bike Share
+  - APPROVED        customer-O-1044.txt  to Main Street Bikes
+  - APPROVED        customer-O-1045.txt  to Lakeview Rentals

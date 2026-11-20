@@ -1,0 +1,15 @@
+Verdict:  APPROVED (after 1 rewrite)
+To:       Karen Walsh <k.walsh@northgatedrive.example>
+Subject:  Re: PO-7781 - MC-500 controllers - revised shipment schedule
+Hello Karen,
+
+Thank you for letting us know about PO-7781. To confirm our understanding: of the 400 MC-500 controllers due on day 5, 120 will ship on day 5 and the remaining 280 will follow on day 26.
+
+This has a real impact on our side. We will be 90 controllers short when our orders are due, which delays 3 customer orders and 90 bikes by 5 to 12 days.
+
+We would like to reduce this shortfall wherever possible. Please let us know whether more than 120 controllers could ship on day 5, or whether any part of the remaining 280 could ship earlier than day 26, along with the quantities and dates that are realistic. Any information on alternative chip sources or production options that could speed up the remaining units would also help.
+
+We appreciate your offer to discuss other options this week.
+
+Regards,
+Purchasing, Brookfield Bicycle Company

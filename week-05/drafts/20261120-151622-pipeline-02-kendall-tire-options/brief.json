@@ -1,0 +1,32 @@
+{
+  "part_id": "TR-29",
+  "what_changed": "PO-7795 (400 TR-29 tires, scheduled to arrive on day 8) can't be filled at once; Kendall offers either 160 tires on day 8 and the remaining 240 on day 22 (Option 1), or all 400 tires on day 12 (Option 2), and will default to Option 2 if Brookfield does not reply within two business days.",
+  "orders_at_risk": [
+    {
+      "order_id": "O-1046",
+      "customer": "Hilltop Outfitters",
+      "units_short": 20,
+      "ship_day": 9,
+      "ready_day": 12,
+      "late_penalty": false
+    }
+  ],
+  "options": [
+    {
+      "name": "Option 1: 160 tires on day 8, remaining 240 on day 22",
+      "order_ids_at_risk": []
+    },
+    {
+      "name": "Option 2: all 400 tires on day 12 (supplier's default if no reply)",
+      "order_ids_at_risk": [
+        "O-1046"
+      ]
+    }
+  ],
+  "decisions_for_a_person": [
+    "Choose Option 1 or Option 2 for PO-7795 and tell Kendall Tire Supply within two business days; if no one replies, Kendall will go with Option 2, which makes 20 bikes on O-1046 (Hilltop Outfitters) 3 days late (ship day 9, ready day 12). Option 1 puts no orders at risk."
+  ],
+  "supplier_questions": [
+    "Which option do you prefer (Option 1: 160 on the scheduled date and 240 two weeks later; Option 2: all 400 four days after the scheduled date)? Please reply within two business days."
+  ]
+}

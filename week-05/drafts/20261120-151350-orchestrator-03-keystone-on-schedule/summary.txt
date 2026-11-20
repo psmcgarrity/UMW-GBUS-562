@@ -1,0 +1,7 @@
+Email:       03-keystone-on-schedule.eml - PO-7790 - BP-48 battery packs - shipped on schedule
+Coordinator: orchestrator
+Decision needed by a person: no
+
+Keystone Battery Co. (Brian Foley) says PO-7790 for 150 BP-48 battery packs shipped today and should arrive on the scheduled date. Nothing about the quantity or timing has changed, so no customer orders are affected. I didn't run the supply analysis or draft any replies or customer notices. I also didn't check the 150 units against our PO-7790 record. If the PO was for a different amount, that check is worth doing. Otherwise, just watch for the delivery on the scheduled date.
+
+Drafts: none.

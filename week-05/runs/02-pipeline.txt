@@ -1,0 +1,52 @@
+Coordinator: pipeline
+Email:       02-kendall-tire-options.eml
+From:        Lisa Moreno <l.moreno@kendalltire.example>
+Subject:     PO-7795 - TR-29 tires - two options, please choose
+
+Step 1: supply analyst
+  [supply analyst] claude-opus-5-5
+    [server] Brookfield supply MCP server ready (stdio), data: brookfield-bikes
+    analyst step 1: get_part {"part_id": "TR-29"}
+      -> { "part_id": "TR-29", "description": "29-inch trail tire", "on_hand": 120, "supplier": "Kendall Tire Supply", "scheduled_shipments": [ { "po_number": "PO-7795", "supplier": "Kendall Tire Supply", "qty": 400, "arrives_in_days": 8 } ] }
+    analyst step 2: get_orders_for_part {"part_id": "TR-29"}
+      -> { "part_id": "TR-29", "orders": [ { "order_id": "O-1046", "customer": "Hilltop Outfitters", "model": "Trail 29", "bikes": 80, "parts_per_bike": 2, "parts_needed": 160, "ship_day": 9, "late_penalty": false }, { "order_id": "O-1049", "customer": "Pine Valley Outdoors", "model": "Trail 29", "bikes": 40...
+    analyst step 3: check_coverage {"part_id": "TR-29", "po_number": "PO-7795", "revised_shipments": [{"qty": 160, "arrives_in_days": 8}, {"qty": 240, "arrives_in_days": 22}]}
+      -> { "part_id": "TR-29", "po_number": "PO-7795", "original_shipment": { "qty": 400, "arrives_in_days": 8 }, "revised_shipments": [ { "qty": 160, "arrives_in_days": 8 }, { "qty": 240, "arrives_in_days": 22 } ], "on_hand": 120, "rules": "Parts go to orders in ship-day order; an order ships the bikes it h...
+    analyst step 4: check_coverage {"part_id": "TR-29", "po_number": "PO-7795", "revised_shipments": [{"qty": 400, "arrives_in_days": 12}]}
+      -> { "part_id": "TR-29", "po_number": "PO-7795", "original_shipment": { "qty": 400, "arrives_in_days": 8 }, "revised_shipments": [ { "qty": 400, "arrives_in_days": 12 } ], "on_hand": 120, "rules": "Parts go to orders in ship-day order; an order ships the bikes it has parts for on its ship day and the r...
+    brief: PO-7795 (400 TR-29 tires, scheduled to arrive on day 8) can't be filled at once; Kendall offers either 160 tires on day 8 and the remaining 240 on day 22 (Optio...
+    orders at risk: O-1046; options: 2; decisions: 1
+
+Step 2: supplier reply
+  [supplier writer] claude-sonnet-5-5
+    supplier draft: Hi Lisa, Thank you for letting us know about the mixing machine repair affecting PO-7795 (400 TR-29 trail tires, scheduled for day 8). To confirm our understand...
+    reviewer: REVISE - **Rule 3 (supplier draft describes a customer's order):** The sentence "Under Option 2, one of our orders would be delayed by about 3 days" tells the supplier that a customer's order would be delayed ...
+    supplier draft (rewrite 1): Hi Lisa, Thank you for letting us know about the mixing machine repair affecting PO-7795 (400 TR-29 trail tires, scheduled for day 8). To confirm our understand...
+    reviewer: APPROVE
+
+Step 3: customer notices
+  held: the supplier offered options that no one has chosen yet.
+
+============================================================
+Email:       02-kendall-tire-options.eml - PO-7795 - TR-29 tires - two options, please choose
+Coordinator: pipeline
+Decision needed by a person: YES
+
+What changed: PO-7795 (400 TR-29 tires, scheduled to arrive on day 8) can't be filled at once; Kendall offers either 160 tires on day 8 and the remaining 240 on day 22 (Option 1), or all 400 tires on day 12 (Option 2), and will default to Option 2 if Brookfield does not reply within two business days.
+Orders at risk (depends on the option chosen - see below):
+  - O-1046 Hilltop Outfitters: 20 bikes, 3 days late
+Decisions for a person:
+  - Choose Option 1 or Option 2 for PO-7795 and tell Kendall Tire Supply within two business days; if no one replies, Kendall will go with Option 2, which makes 20 bikes on O-1046 (Hilltop Outfitters) 3 days late (ship day 9, ready day 12). Option 1 puts no orders at risk.
+
+Options offered (customer notices held until one is chosen):
+  - Option 1: 160 tires on day 8, remaining 240 on day 22: delays no orders
+  - Option 2: all 400 tires on day 12 (supplier's default if no reply): delays O-1046
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Lisa Moreno
+============================================================
+Saved in week-05\drafts\20261120-151622-pipeline-02-kendall-tire-options
+Tokens - analyst      input:    7,971  output:   1,588
+Tokens - writer       input:    3,146  output:     769
+Tokens - reviewer     input:    3,201  output:   2,338
+Tokens - total        input:   14,318  output:   4,695

@@ -1,0 +1,13 @@
+Verdict:  APPROVED
+To:       City of Ashford Bike Share <fleet@ashfordbikeshare.example>
+Subject:  Update on your order O-1043
+Dear City of Ashford Bike Share,
+
+We're writing about order O-1043, for 100 Commuter E bikes. We're sorry to tell you that part of this order will ship later than planned.
+
+Ninety of the bikes are still on schedule. The remaining 10 are now expected to ship 12 days later than planned. The cause is a delay in a part from one of our suppliers.
+
+We apologize for the inconvenience this causes. If you have questions about the order, please reply to this message and our team will help.
+
+Sincerely,
+Customer Service, Brookfield Bicycle Company

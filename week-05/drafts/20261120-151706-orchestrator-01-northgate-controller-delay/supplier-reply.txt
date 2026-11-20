@@ -1,0 +1,18 @@
+Verdict:  APPROVED
+To:       Karen Walsh <k.walsh@northgatedrive.example>
+Subject:  Re: PO-7781 - MC-500 controllers - revised shipment schedule
+Hello Karen,
+
+Thank you for letting us know about PO-7781. To confirm our understanding: of the 400 MC-500 motor controllers, 120 will ship on the scheduled date (day 5), and the remaining 280 will follow three weeks later (day 26).
+
+This change has a real impact on us. We will be 90 controllers short when our orders are due, and that will delay orders by 5 to 12 days. We can't share details about which of our customers are affected, but we can tell you the shortfall is 90 units and the delays are 5 to 12 days.
+
+To reduce the impact, we ask that you:
+- Ship more than 120 units on the scheduled date, if any additional controllers can be made available.
+- Move up as much of the remaining 280 as possible, and send any units that become available ahead of day 26 rather than holding them for a single shipment.
+- Let us know as soon as you can what quantity and dates you can realistically commit to.
+
+We appreciate your offer to discuss other options this week. We aren't able to agree to any option at this point, but we will confirm with you whether we'd like to talk, and by when, once we have reviewed internally. In the meantime, please send us any updated quantities or dates as soon as you have them.
+
+Regards,
+Purchasing, Brookfield Bicycle Company

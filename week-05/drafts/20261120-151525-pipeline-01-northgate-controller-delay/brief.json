@@ -1,0 +1,39 @@
+{
+  "part_id": "MC-500",
+  "what_changed": "PO-7781's 400 MC-500 controllers, all due on day 5, now arrive as 120 on day 5 and the remaining 280 on day 26.",
+  "orders_at_risk": [
+    {
+      "order_id": "O-1043",
+      "customer": "City of Ashford Bike Share",
+      "units_short": 10,
+      "ship_day": 14,
+      "ready_day": 26,
+      "late_penalty": true
+    },
+    {
+      "order_id": "O-1044",
+      "customer": "Main Street Bikes",
+      "units_short": 30,
+      "ship_day": 18,
+      "ready_day": 26,
+      "late_penalty": false
+    },
+    {
+      "order_id": "O-1045",
+      "customer": "Lakeview Rentals",
+      "units_short": 50,
+      "ship_day": 21,
+      "ready_day": 26,
+      "late_penalty": false
+    }
+  ],
+  "options": [],
+  "decisions_for_a_person": [
+    "Whether to accept Northgate's offer to discuss other options this week, for example getting at least 90 more controllers before day 14 so O-1043 (late penalty) and the other orders at risk ship on time. No option like this has been tested.",
+    "How to handle O-1043 for City of Ashford Bike Share: 10 bikes would be 12 days late on an order with a late penalty.",
+    "What, if anything, to tell Northgate about which customers are affected, since sharing customer names and order details with a supplier is a business decision."
+  ],
+  "supplier_questions": [
+    "Which of Brookfield's customers are most affected, so Northgate can understand the impact on Brookfield's side?"
+  ]
+}
