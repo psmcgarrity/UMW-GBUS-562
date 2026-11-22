@@ -1,0 +1,43 @@
+{
+  "part_id": "BL-12",
+  "what_changed": "PO-5520's 200 BL-12 boilers, due on day 7, will not all arrive on time: Option A sends 80 on day 7 and 120 on day 21, and Option B sends all 200 on day 13 (Marlow's default if Copperline doesn't reply within three business days).",
+  "orders_at_risk": [
+    {
+      "order_id": "O-2203",
+      "customer": "Elm State University Dining",
+      "units_short": 40,
+      "ship_day": 12,
+      "ready_day": 13,
+      "late_penalty": true
+    },
+    {
+      "order_id": "O-2205",
+      "customer": "Tall Pines Coffee House",
+      "units_short": 5,
+      "ship_day": 17,
+      "ready_day": 21,
+      "late_penalty": true
+    }
+  ],
+  "options": [
+    {
+      "name": "Option A: 80 on day 7, remaining 120 on day 21",
+      "order_ids_at_risk": [
+        "O-2205"
+      ]
+    },
+    {
+      "name": "Option B: all 200 on day 13",
+      "order_ids_at_risk": [
+        "O-2203"
+      ]
+    }
+  ],
+  "decisions_for_a_person": [
+    "Choose Option A (O-2205 for Tall Pines Coffee House ships 5 of 25 units 4 days late, on day 21; late penalty applies) or Option B (O-2203 for Elm State University Dining ships 40 of 50 units 1 day late, on day 13; late penalty applies).",
+    "Reply to Marlow Metalworks within three business days, or Marlow will go with Option B by default."
+  ],
+  "supplier_questions": [
+    "Which shipping option (A or B) does Copperline want for PO-5520? Marlow asks for an answer within three business days."
+  ]
+}

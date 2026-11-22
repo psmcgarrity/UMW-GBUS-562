@@ -1,0 +1,10 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       04-pelham-maintenance-closure.eml - Plant maintenance closure - PO-5540 not affected
+Coordinator: pipeline
+Decision needed by a person: no
+
+What changed: Nothing changes for SW-3: PO-5540 still brings 60 steam wands on day 11 as scheduled; the supplier only says its plant will close for one week starting four weeks from today (about days 28-35), which does not affect this PO.
+Orders at risk: none.
+
+Drafts (nothing has been sent):
+  - NO REPLY NEEDED supplier-reply.txt  to Owen Brady

@@ -1,6 +1,6 @@
-"""orchestrator.py - coordinator 2: an orchestrator agent runs Brookfield's AI specialists.
+"""orchestrator.py - coordinator 2: an orchestrator agent runs one company's AI specialists.
 
-Claude (claude-opus-5-5, prompt in brookfield-bikes/prompts/orchestrator.txt) reads the
+Claude (claude-opus-5-5, prompt in <company>/prompts/orchestrator.txt) reads the
 supplier email and decides which specialists to use, through four tools:
   run_supply_analyst      the analyst works out the impact (JSON brief)
   draft_supplier_reply    the supplier writer drafts a reply; the reviewer checks it
@@ -10,12 +10,16 @@ supplier email and decides which specialists to use, through four tools:
 The same rules as in pipeline.py are enforced in specialists.py, not left to Claude:
 every draft is reviewed, writers only see what they are allowed to, notices only for
 checked orders at risk and never while options are undecided, and nothing can be sent.
+The analyst's brief is printed in full, and each final draft once after its review step.
+
+--org names the company folder (five CSVs, supplier-emails/, prompts/): a path, or a
+folder name in week-05. Without it, week-05/brookfield-bikes is used.
 
 Usage (from the top of the repository):
   .venv\\Scripts\\python.exe week-05\\orchestrator.py --email week-05\\brookfield-bikes\\supplier-emails\\03-keystone-on-schedule.eml
-  .venv\\Scripts\\python.exe week-05\\orchestrator.py --email week-05\\brookfield-bikes\\supplier-emails\\01-northgate-controller-delay.eml --save week-05\\runs\\01-orchestrator.txt
+  .venv\\Scripts\\python.exe week-05\\orchestrator.py --org week-05\\copperline-coffee --email week-05\\copperline-coffee\\supplier-emails\\01-danforth-pump-delay.eml --save week-05\\runs\\copperline-01-orchestrator.txt
 
-Drafts and the summary are saved in week-05/drafts/<date-time>-orchestrator-<email>/.
+Drafts and the summary are saved in week-05/drafts/<company>/<date-time>-orchestrator-<email>/.
 """
 
 from __future__ import annotations
@@ -37,7 +41,7 @@ def _tool(name: str, description: str, properties: dict[str, Any] | None = None)
 
 TOOLS = [
     _tool("run_supply_analyst",
-          "Ask the supply analyst to work out how this email affects Brookfield's customer orders, using "
+          "Ask the supply analyst to work out how this email affects the company's customer orders, using "
           "the stock, shipment and order data. Returns the analyst's brief as JSON: what changed, the "
           "orders at risk, the supplier's options, decisions for a person, and the supplier's questions."),
     _tool("draft_supplier_reply",
@@ -50,7 +54,7 @@ TOOLS = [
           "supplier's options are undecided. Returns the draft and the reviewer's verdict.",
           {"order_id": {"type": "string", "description": "An order_id from the brief's orders_at_risk."}}),
     _tool("finish",
-          "End the job. Give a short summary for Brookfield's purchasing manager and say whether a person "
+          "End the job. Give a short summary for the company's purchasing manager and say whether a person "
           "needs to make a decision.",
           {"summary": {"type": "string", "description": "A short summary for the purchasing manager."},
            "needs_decision": {"type": "boolean", "description": "True if a person must decide something."}}),
@@ -95,7 +99,7 @@ async def run_orchestrator(run: sp.Run) -> None:
     print(f"[orchestrator] {sp.ORCHESTRATOR_MODEL}")
     final = await sp.tool_loop(
         run, "orchestrator", sp.ORCHESTRATOR_MODEL, sp.load_prompt("orchestrator"),
-        "Coordinate Brookfield's response to this supplier email.\n\n" + sp.email_block(run.email),
+        f"Coordinate {sp.ORG_NAME}'s response to this supplier email.\n\n" + sp.email_block(run.email),
         TOOLS, handle, MAX_TOOL_CALLS, is_done=lambda: bool(finished))
 
     if not finished:
@@ -105,5 +109,5 @@ async def run_orchestrator(run: sp.Run) -> None:
 
 
 if __name__ == "__main__":
-    sp.cli_main("orchestrator", "Orchestrator agent: Brookfield's response to one supplier email.",
+    sp.cli_main("orchestrator", "Orchestrator agent: a company's response to one supplier email.",
                 run_orchestrator)

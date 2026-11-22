@@ -1,0 +1,19 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       02-marlow-boiler-options.eml - PO-5520 - BL-12 boilers - please choose a shipping option
+Coordinator: pipeline
+Decision needed by a person: YES
+
+What changed: PO-5520 (200 BL-12 boilers, scheduled to arrive on day 7) can't ship in full on time; Marlow offers either 80 on day 7 and 120 on day 21 (Option A) or all 200 on day 13 (Option B).
+Orders at risk (depends on the option chosen - see below):
+  - O-2205 Tall Pines Coffee House: 5 units, 4 days late - LATE PENALTY
+  - O-2203 Elm State University Dining: 40 units, 1 days late - LATE PENALTY
+Decisions for a person:
+  - Choose Option A (5 units of O-2205 for Tall Pines Coffee House ready 4 days late, late penalty applies) or Option B (40 units of O-2203 for Elm State University Dining ready 1 day late, late penalty applies), and reply to Marlow within three business days or Option B applies by default.
+  - Decide whether to warn the affected customer (Tall Pines under Option A, Elm State University Dining under Option B) about the partial late shipment.
+
+Options offered (customer notices held until one is chosen):
+  - Option A: 80 boilers on day 7, remaining 120 on day 21: delays O-2205
+  - Option B: all 200 boilers on day 13: delays O-2203
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Victor Lindqvist

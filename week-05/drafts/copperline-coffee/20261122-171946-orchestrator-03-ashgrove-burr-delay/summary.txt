@@ -1,0 +1,9 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       03-ashgrove-burr-delay.eml - PO-5531 - BR-64 burr sets - arriving 3 days late
+Coordinator: orchestrator
+Decision needed by a person: no
+
+Ashgrove Precision (Priya Raman) says PO-5531 for 120 BR-64 burr sets will arrive 3 days late, on day 13 instead of day 10, because of a furnace repair. All 120 sets will still ship together. The supply analyst found that no customer orders are short or delayed, so no customer notices are needed. Priya asked to hear if the delay causes problems, so a reply saying it doesn't was drafted, passed review and is saved as supplier-reply.txt. Nothing has been sent. The draft also asks Ashgrove to ship sooner if they can, which we don't need. You may want to cut that line before sending. It also asks them to tell us right away if the date or quantity changes again.
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Priya Raman

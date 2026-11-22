@@ -1,0 +1,8 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       04-pelham-maintenance-closure.eml - Plant maintenance closure - PO-5540 not affected
+Coordinator: orchestrator
+Decision needed by a person: no
+
+Pelham Fittings (Owen Brady) says their plant will close for one week of maintenance, starting four weeks from today (about day 28 to day 35). The supply analyst checked this against our data. PO-5540 for 60 SW-3 steam wands still arrives on schedule on day 11, and no customer orders are at risk. The only thing to keep in mind is timing: avoid planning any new SW-3 orders with Pelham that would need to ship from about day 28 to day 35. I didn't draft a supplier reply or any customer notices because none were needed.
+
+Drafts: none.

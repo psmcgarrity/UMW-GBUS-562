@@ -1,0 +1,10 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       03-ashgrove-burr-delay.eml - PO-5531 - BR-64 burr sets - arriving 3 days late
+Coordinator: pipeline
+Decision needed by a person: no
+
+What changed: PO-5531 for 120 BR-64 burr sets will now arrive all together in 13 days instead of 10.
+Orders at risk: none.
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Priya Raman

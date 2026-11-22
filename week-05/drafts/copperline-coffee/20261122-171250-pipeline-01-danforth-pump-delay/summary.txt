@@ -1,0 +1,19 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       01-danforth-pump-delay.eml - PO-5512 - PU-20 pumps - partial shipment
+Coordinator: pipeline
+Decision needed by a person: YES
+
+What changed: PO-5512 was due to deliver all 200 PU-20 pumps on day 4; now 40 arrive on day 4 and the other 160 arrive on day 19.
+Orders at risk:
+  - O-2203 Elm State University Dining: 10 units, 7 days late - LATE PENALTY
+  - O-2204 Kettle & Crumb Bakery: 10 units, 4 days late
+  - O-2205 Tall Pines Coffee House: 25 units, 2 days late - LATE PENALTY
+Decisions for a person:
+  - How to handle the late penalties on O-2203 (Elm State University Dining, 7 days late) and O-2205 (Tall Pines Coffee House, 2 days late). Options include asking Danforth to send the remaining 160 pumps sooner, finding PU-20 pumps elsewhere, or contacting the customers.
+  - Whether to share any customer order information (names, quantities) with Danforth Pump Works, as they asked.
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Diane Kessler
+  - APPROVED        customer-O-2203.txt  to Elm State University Dining
+  - APPROVED        customer-O-2204.txt  to Kettle & Crumb Bakery
+  - APPROVED        customer-O-2205.txt  to Tall Pines Coffee House

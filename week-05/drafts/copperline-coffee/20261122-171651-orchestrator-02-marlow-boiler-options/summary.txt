@@ -1,0 +1,19 @@
+Company:     Copperline Coffee (copperline-coffee)
+Email:       02-marlow-boiler-options.eml - PO-5520 - BL-12 boilers - please choose a shipping option
+Coordinator: orchestrator
+Decision needed by a person: YES
+
+Marlow Metalworks can't ship all 200 BL-12 boilers on PO-5520 on the scheduled date (day 7) because their welding cell is at half capacity. Each of their two options puts one customer order at risk, and both orders carry late penalties.
+
+- **Option A:** 80 boilers arrive on day 7 and the other 120 on day 21. Tall Pines Coffee House's order O-2205 would ship 5 of its 25 units 4 days late, on day 21 instead of day 17.
+- **Option B:** all 200 boilers arrive on day 13. Elm State University Dining's order O-2203 would ship 40 of its 50 units 1 day late, on day 13 instead of day 12.
+
+**Decision needed:** choose Option A or Option B. Marlow wants an answer within three business days. If they don't hear from us, they'll go with Option B, which is the one that delays the Elm State order.
+
+I haven't drafted a reply to Marlow, because the reply depends on which option you choose. Customer notices are on hold until you choose. Once you decide, I can draft the reply to Marlow and the notice for whichever customer is affected. Nothing has been sent.
+
+Options offered (customer notices held until one is chosen):
+  - Option A: 80 on day 7, remaining 120 on day 21: delays O-2205
+  - Option B: all 200 on day 13: delays O-2203
+
+Drafts: none.

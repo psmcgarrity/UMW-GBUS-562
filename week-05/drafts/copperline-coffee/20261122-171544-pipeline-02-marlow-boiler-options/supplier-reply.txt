@@ -1,0 +1,20 @@
+Verdict:  APPROVED (after 1 rewrite)
+To:       Victor Lindqvist <v.lindqvist@marlowmetal.example>
+Subject:  Re: PO-5520 - BL-12 boilers - please choose a shipping option
+Hi Victor,
+
+Thank you for letting us know about PO-5520. To confirm our understanding: the order is for 200 BL-12 boilers, scheduled to arrive on day 7, and your welding cell capacity means it can't ship in full on time. You've offered two options:
+
+- Option A: 80 boilers on day 7 and the remaining 120 on day 21.
+- Option B: all 200 boilers on day 13.
+
+Either option creates difficulties for us, and we'd like to reduce the shortfall if we can. Please let us know:
+
+1. Can you ship more than 80 boilers on day 7, or add a partial shipment before day 13 or day 21?
+2. Can any part of the order move earlier, for example by prioritizing this PO in your welding cell or adding a shift or overtime?
+3. If not, what is the earliest date each portion could ship?
+
+We understand you've asked for a reply within three business days. We are reviewing the options and will respond as soon as we can. We are not selecting an option in this email.
+
+Regards,
+Purchasing, Copperline Coffee Machines

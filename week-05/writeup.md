@@ -1,78 +1,222 @@
-# Week 05 Writeup: Pipeline vs. Orchestrator
+## \## What I Built We constructed two coordinators, one pipeline and one orchestrator. To make it work for any company including Copperline and not just Brookfield, a few changes had to be made, including an instruction (--org) that changed the company name, which helped the drafted emails become more orientated from the company. Also the default csv format that is used by Brookefield had to be changed so that the new companies data still fit. 
 
-## What I Built
-A team of AI specialists that prepares Brookfield Bicycle Company's response to one supplier email:
+## 
 
-| Specialist | Model | Job |
-|---|---|---|
-| Supply analyst | `claude-opus-5-5` | Uses three data tools from an MCP server (`supply_mcp_server.py`): `get_part`, `get_orders_for_part`, `check_coverage`. Returns a JSON brief. |
-| Supplier writer | `claude-sonnet-5-5` | Drafts the reply to the supplier. |
-| Customer writer | `claude-sonnet-5-5` | Drafts a notice to the customer of one order at risk. |
-| Reviewer | `claude-sonnet-5-5` | Checks every draft against six rules: APPROVE or REVISE (up to two rewrites). |
+## 
 
-Two coordinators run the same specialists (`specialists.py`):
+## \## Why This Approach
 
-- **Pipeline** (`pipeline.py`): Python runs the same steps every time: analyst, then supplier reply, then one notice per order at risk, then a summary written by code.
-- **Orchestrator** (`orchestrator.py`): a `claude-opus-5-5` agent decides which specialists to call, through the tools `run_supply_analyst`, `draft_supplier_reply`, `draft_customer_notice` and `finish`.
+## Task A: Script, this is a repeatable task with no decisions. 
 
-Some rules are enforced in code for both coordinators, so neither one can skip them:
-- every draft is reviewed;
-- the supplier writer never sees customer names or order numbers;
-- the customer writer sees only that one order's facts;
-- notices are only for orders that `check_coverage` confirmed;
-- no notices while the supplier's options are undecided;
-- nothing can be sent.
+## Task B: Team. In normal business practice each of these steps would likely fall to a different person within the organization. 
 
-## The Three Emails
+## For Tasks C and D, decide which coordinator fits: start with Pipeline or Orchestrator, then say why.
 
-| Email | What the supplier says | Correct impact (from `check_coverage`) |
-|---|---|---|
-| 01 Northgate | PO-7781: 120 of 400 MC-500 controllers on the scheduled date (day 5), 280 three weeks later (day 26) | 3 orders late: O-1043 (10 bikes, 12 days, **late penalty**), O-1044 (30 bikes, 8 days), O-1045 (50 bikes, 5 days) |
-| 02 Kendall | PO-7795: two options, choose within two business days, or Option 2 by default | Option 1 (160 on day 8, 240 on day 22): no orders late. Option 2 (all 400 on day 12): O-1046 is 20 bikes, 3 days late |
-| 03 Keystone | PO-7790 shipped on schedule, no action needed | No orders at risk |
+## Task C: Pipeline. No steps involve any loops or tools needed.
 
-## Results
+## Task D: Orchestrator. There is a need to handle each type of email differently, which could involve scripts, agents, or teams. 
 
-| | 01 Pipeline | 01 Orchestrator | 02 Pipeline | 02 Orchestrator | 03 Pipeline | 03 Orchestrator |
-|---|---|---|---|---|---|---|
-| Analyst run? | Yes (4 tool calls) | Yes (4 tool calls) | Yes (4) | Yes (5) | Yes (3) | **No** |
-| Orders at risk found | O-1043, O-1044, O-1045 | Same | O-1046, under Option 2 only | Same | None | Not checked |
-| Supplier reply | Approved (1 rewrite) | Approved (0 rewrites) | Approved (1 rewrite) | Approved (0 rewrites) | NO REPLY NEEDED | None |
-| Customer notices | **3**, all approved first time | **None** | Held: options undecided | Held: options undecided | None needed | None |
-| Decision for a person? | Yes | Yes | Yes | Yes | No | No |
-| Tokens in / out | 18,607 / 5,679 | 18,504 / 4,647 | 14,318 / 4,695 | 17,612 / 4,190 | 7,957 / 769 | **1,390 / 575** |
-| Approx. cost* | $0.13 | $0.14 | $0.11 | $0.13 | $0.05 | **$0.02** |
+## 
 
-\*At list prices: Opus 5.5 $4 / $20 and Sonnet 5.5 $2 / $10 per million input / output tokens.
+## \## Example Run
 
-Transcripts are in `runs/` (`01-pipeline.txt`, `01-orchestrator.txt`, ...). Drafts, briefs and summaries are in `drafts/<date-time>-<coordinator>-<email>/`.
+## Coordinator: orchestrator
 
-## Comparison
+## Email:       02-marlow-boiler-options.eml
 
-**01 Northgate: same facts, different judgment.** Both analysts found the same three orders, with the same numbers. The pipeline then did what it always does and drafted all three customer notices. The orchestrator drafted only the supplier reply. It held the notices on purpose, because Northgate offered to discuss other options that week, so the dates might still change. It listed "when to tell the three customers" as a decision for the purchasing manager. Both choices are defensible. The pipeline gives the manager more ready-to-send drafts, and the orchestrator avoids notices that may have to be corrected. The two runs cost about the same. The orchestrator saved by skipping three notices, but its own calls (about 7.8k tokens) used up that saving.
+## From:        Victor Lindqvist <v.lindqvist@marlowmetal.example>
 
-**02 Kendall: the same result.** Both coordinators ran the analyst, drafted a supplier reply that accepts neither option, held the customer notice for Hilltop Outfitters (O-1046), and flagged the decision with its two-business-day deadline. The deadline matters because Kendall's default, Option 2, is the one that makes O-1046 late. The pipeline cost slightly less here because it has no orchestrator calls. The difference in rewrites (1 vs. 0) comes from the writer, not the coordinator.
+## Subject:     PO-5520 - BL-12 boilers - please choose a shipping option
 
-**03 Keystone: where the orchestrator wins.** The pipeline ran the analyst with three tool calls just to confirm that nothing changed, then asked the supplier writer, which answered NO REPLY NEEDED. The orchestrator read the email and called `finish` immediately. It used about a fifth of the pipeline's tokens (1,965 vs. 8,726) and about a third of its cost. It didn't check the data, so it relied on the supplier's word that nothing changed. For an on-schedule email that is a reasonable risk.
+## 
 
-**Summary.**
+## \[orchestrator] claude-opus-5-5
 
-| | Pipeline | Orchestrator |
-|---|---|---|
-| Predictability | Same steps, same kinds of output, every time | Varies with the email, and with Claude's judgment |
-| Cost on emails that need work (01, 02) | Slightly lower or equal | Pays ~7–8k tokens for orchestration |
-| Cost on emails that need no work (03) | Pays for the full analysis anyway | ~6× fewer input tokens |
-| Judgment | None: drafts notices even when timing is debatable | Held Northgate notices for a sensible business reason |
-| Risk | Does unnecessary work | May skip work a manager expected (no Northgate notices; no data check on Keystone) |
+## &#x20; orchestrator step 1: run\_supply\_analyst {}
 
-The rules in code made the comparison fair. Both coordinators had to follow the same guardrails, so the differences above come only from **who decides which steps run**, not from one coordinator bending the rules.
+## &#x20;   \[supply analyst] claude-opus-5-5
 
-## What Testing Found and Fixed
-- **The writer and reviewer prompts conflicted.** `customer-writer.txt` says to give the cause as "a delay in a part from one of our suppliers". The reviewer, which hadn't been given that wording as a fact, rejected it as an invented cause and a supplier mention. In the first run, all three customer notices ended as NEEDS REVIEW after two rewrites each. Fix: the approved cause wording is now one of the order facts. The prompts are unchanged.
-- **The writer guessed how late bikes would ship.** It kept writing "all 50 bikes ship together", and the reviewer kept rejecting that as unsupported. Fix: a `shipment_plan` fact from `check_coverage` (for example, "all 50 bikes ship together in one shipment, 5 days after the planned date"). After this, all notices passed review on the first try.
-- **The reviewer missed one error, and the orchestrator caught it.** An approved supplier reply said "90 units short on the scheduled ship date". The 90 is the shortfall across customer orders due on days 14–21, not on day 5. The cause was a misleading field name in the supplier's facts (`parts_short_on_ship_days`), now renamed. The orchestrator spotted the error while writing its summary. That is a second check the pipeline doesn't have.
-- **Options were summarized wrongly.** The analyst named the field `order_ids_at_risk` instead of `order_ids`, so both Kendall options showed "delays no orders". The code now accepts either name.
-- **Still open:** the supplier writer is told to confirm "by the time they asked for". Northgate gave no deadline, so the writer invents one, and the reviewer rejects it under rule 2. That causes the remaining supplier rewrites. It could be fixed the same way, with a `decision_deadline` fact.
+## &#x20;     \[server] Copperline Coffee supply MCP server ready (stdio), data: copperline-coffee
 
-## Privacy Check
-All 11 supplier replies and 12 customer notices produced during testing (`drafts/` keeps only the latest run of each email and coordinator) were scanned: the replies for every customer name and order number, the notices for supplier names, penalties, discounts and credits. Nothing was found. Northgate's reply didn't name any customer, even though Karen Walsh asked which customers were most affected.
+## &#x20;     \[server] columns found under other names - orders.csv: ship\_day=ship\_by\_day, quantity=units
+
+## &#x20;     analyst step 1: get\_part {"part\_id": "BL-12"}
+
+## &#x20;       -> { "part\_id": "BL-12", "description": "1.2-liter boiler", "on\_hand": 60, "supplier": "Marlow Metalworks", "scheduled\_shipments": \[ { "po\_number": "PO-5520", "supplier": "Marlow Metalworks", "qty": 200, "arrives\_in\_days": 7 } ] }
+
+## &#x20;     analyst step 2: get\_orders\_for\_part {"part\_id": "BL-12"}
+
+## &#x20;       -> { "part\_id": "BL-12", "orders": \[ { "order\_id": "O-2201", "customer": "Morning Ritual Cafe", "product": "Cafe One", "units": 20, "parts\_per\_unit": 1, "parts\_needed": 20, "ship\_day": 6, "late\_penalty": false }, { "order\_id": "O-2202", "customer": "Harbor Hotel Group", "product": "Cafe Duo", "units": ...
+
+## &#x20;     analyst step 3: check\_coverage {"part\_id": "BL-12", "po\_number": "PO-5520", "revised\_shipments": \[{"qty": 80, "arrives\_in\_days": 7}, {"qty": 120, "arrives\_in\_days": 21}]}
+
+## &#x20;       -> { "part\_id": "BL-12", "po\_number": "PO-5520", "original\_shipment": { "qty": 200, "arrives\_in\_days": 7 }, "revised\_shipments": \[ { "qty": 80, "arrives\_in\_days": 7 }, { "qty": 120, "arrives\_in\_days": 21 } ], "on\_hand": 60, "rules": "Parts go to orders in ship-day order; an order ships the units it has...
+
+## &#x20;     analyst step 4: check\_coverage {"part\_id": "BL-12", "po\_number": "PO-5520", "revised\_shipments": \[{"qty": 200, "arrives\_in\_days": 13}]}
+
+## &#x20;       -> { "part\_id": "BL-12", "po\_number": "PO-5520", "original\_shipment": { "qty": 200, "arrives\_in\_days": 7 }, "revised\_shipments": \[ { "qty": 200, "arrives\_in\_days": 13 } ], "on\_hand": 60, "rules": "Parts go to orders in ship-day order; an order ships the units it has parts for on its ship day and the re...
+
+## &#x20;     analyst step 5: check\_coverage {"part\_id": "BL-12", "po\_number": "PO-5520", "revised\_shipments": \[{"qty": 200, "arrives\_in\_days": 7}]}
+
+## &#x20;       -> { "part\_id": "BL-12", "po\_number": "PO-5520", "original\_shipment": { "qty": 200, "arrives\_in\_days": 7 }, "revised\_shipments": \[ { "qty": 200, "arrives\_in\_days": 7 } ], "on\_hand": 60, "rules": "Parts go to orders in ship-day order; an order ships the units it has parts for on its ship day and the res...
+
+## &#x20;     ANALYST'S BRIEF
+
+## &#x20;     {
+
+## &#x20;       "part\_id": "BL-12",
+
+## &#x20;       "what\_changed": "PO-5520's 200 BL-12 boilers, due on day 7, will not all arrive on time: Option A sends 80 on day 7 and 120 on day 21, and Option B sends all 200 on day 13 (Marlow's default if Copperline doesn't reply within three business days).",
+
+## &#x20;       "orders\_at\_risk": \[
+
+## &#x20;         {
+
+## &#x20;           "order\_id": "O-2203",
+
+## &#x20;           "customer": "Elm State University Dining",
+
+## &#x20;           "units\_short": 40,
+
+## &#x20;           "ship\_day": 12,
+
+## &#x20;           "ready\_day": 13,
+
+## &#x20;           "late\_penalty": true
+
+## &#x20;         },
+
+## &#x20;         {
+
+## &#x20;           "order\_id": "O-2205",
+
+## &#x20;           "customer": "Tall Pines Coffee House",
+
+## &#x20;           "units\_short": 5,
+
+## &#x20;           "ship\_day": 17,
+
+## &#x20;           "ready\_day": 21,
+
+## &#x20;           "late\_penalty": true
+
+## &#x20;         }
+
+## &#x20;       ],
+
+## &#x20;       "options": \[
+
+## &#x20;         {
+
+## &#x20;           "name": "Option A: 80 on day 7, remaining 120 on day 21",
+
+## &#x20;           "order\_ids\_at\_risk": \[
+
+## &#x20;             "O-2205"
+
+## &#x20;           ]
+
+## &#x20;         },
+
+## &#x20;         {
+
+## &#x20;           "name": "Option B: all 200 on day 13",
+
+## &#x20;           "order\_ids\_at\_risk": \[
+
+## &#x20;             "O-2203"
+
+## &#x20;           ]
+
+## &#x20;         }
+
+## &#x20;       ],
+
+## &#x20;       "decisions\_for\_a\_person": \[
+
+## &#x20;         "Choose Option A (O-2205 for Tall Pines Coffee House ships 5 of 25 units 4 days late, on day 21; late penalty applies) or Option B (O-2203 for Elm State University Dining ships 40 of 50 units 1 day late, on day 13; late penalty applies).",
+
+## &#x20;         "Reply to Marlow Metalworks within three business days, or Marlow will go with Option B by default."
+
+## &#x20;       ],
+
+## &#x20;       "supplier\_questions": \[
+
+## &#x20;         "Which shipping option (A or B) does Copperline want for PO-5520? Marlow asks for an answer within three business days."
+
+## &#x20;       ]
+
+## &#x20;     }
+
+## &#x20;   -> { "brief": { "part\_id": "BL-12", "what\_changed": "PO-5520's 200 BL-12 boilers, due on day 7, will not all arrive on time: Option A sends 80 on day 7 and 120 on day 21, and Option B sends all 200 on day 13 (Marlow's default if Copperline doesn't reply within three business days).", "orders\_at\_risk": ...
+
+## &#x20; orchestrator step 2: finish {"summary": "Marlow Metalworks can't ship all 200 BL-12 boilers on PO-5520 on the scheduled date (day 7) because their welding cell is at half capacity. Each of their two options puts one customer order at risk, and both orders carry late penalties.\\n\\n- \*\*Option A:\*\* 80 boilers arrive on day 7 and the other 120 on day 21. Tall Pines Coffee House's order O-2205 would ship 5 of its 25 units 4 days late, on day 21 instead of day 17.\\n- \*\*Option B:\*\* all 200 boilers arrive on day 13. Elm State University Dining's order O-2203 would ship 40 of its 50 units 1 day late, on day 13 instead of day 12.\\n\\n\*\*Decision needed:\*\* choose Option A or Option B. Marlow wants an answer within three business days. If they don't hear from us, they'll go with Option B, which is the one that delays the Elm State order.\\n\\nI haven't drafted a reply to Marlow, because the reply depends on which option you choose. Customer notices are on hold until you choose. Once you decide, I can draft the reply to Marlow and the notice for whichever customer is affected. Nothing has been sent.", "needs\_decision": true}
+
+## &#x20;   -> Finished.
+
+## 
+
+## ============================================================
+
+## Company:     Copperline Coffee (copperline-coffee)
+
+## Email:       02-marlow-boiler-options.eml - PO-5520 - BL-12 boilers - please choose a shipping option
+
+## Coordinator: orchestrator
+
+## Decision needed by a person: YES
+
+## 
+
+## Marlow Metalworks can't ship all 200 BL-12 boilers on PO-5520 on the scheduled date (day 7) because their welding cell is at half capacity. Each of their two options puts one customer order at risk, and both orders carry late penalties.
+
+## 
+
+## \- \*\*Option A:\*\* 80 boilers arrive on day 7 and the other 120 on day 21. Tall Pines Coffee House's order O-2205 would ship 5 of its 25 units 4 days late, on day 21 instead of day 17.
+
+## \- \*\*Option B:\*\* all 200 boilers arrive on day 13. Elm State University Dining's order O-2203 would ship 40 of its 50 units 1 day late, on day 13 instead of day 12.
+
+## 
+
+## \*\*Decision needed:\*\* choose Option A or Option B. Marlow wants an answer within three business days. If they don't hear from us, they'll go with Option B, which is the one that delays the Elm State order.
+
+## 
+
+## I haven't drafted a reply to Marlow, because the reply depends on which option you choose. Customer notices are on hold until you choose. Once you decide, I can draft the reply to Marlow and the notice for whichever customer is affected. Nothing has been sent.
+
+## 
+
+## Options offered (customer notices held until one is chosen):
+
+## &#x20; - Option A: 80 on day 7, remaining 120 on day 21: delays O-2205
+
+## &#x20; - Option B: all 200 on day 13: delays O-2203
+
+## 
+
+## Drafts: none.
+
+## ============================================================
+
+## Saved in week-05\\drafts\\copperline-coffee\\20261122-171651-orchestrator-02-marlow-boiler-options
+
+## Tokens - orchestrator input:    3,708  output:     706
+
+## Tokens - analyst      input:    9,427  output:   1,786
+
+## Tokens - total        input:   13,135  output:   2,492
+
+
+
+## 
+
+## \## Reflection
+
+## Three labeled lines about what your saved runs show.
+
+## Email 1 reading: Matches. They are the same, it correctly interpreted it as 15 days after the scheduled date, so they are both day 19. The brief gave day 19 for the 160. 
+
+## Email 1 customer names: No. It answered Diane's request by asking for clarification, then asking if any of three identified scenarios might be possible. It was not marked for a person. 
+
+## Email 4 orchestrator: It only called run\_supply\_analyst, as its orders were not impacted and no email was necessary. The pipeline ran through all of its steps and drafted an email as it always does.
+

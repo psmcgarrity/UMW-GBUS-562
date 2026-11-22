@@ -1,0 +1,121 @@
+Coordinator: pipeline
+Email:       02-marlow-boiler-options.eml
+From:        Victor Lindqvist <v.lindqvist@marlowmetal.example>
+Subject:     PO-5520 - BL-12 boilers - please choose a shipping option
+
+Step 1: supply analyst
+  [supply analyst] claude-opus-5-5
+    [server] Copperline Coffee supply MCP server ready (stdio), data: copperline-coffee
+    [server] columns found under other names - orders.csv: ship_day=ship_by_day, quantity=units
+    analyst step 1: get_part {"part_id": "BL-12"}
+      -> { "part_id": "BL-12", "description": "1.2-liter boiler", "on_hand": 60, "supplier": "Marlow Metalworks", "scheduled_shipments": [ { "po_number": "PO-5520", "supplier": "Marlow Metalworks", "qty": 200, "arrives_in_days": 7 } ] }
+    analyst step 2: get_orders_for_part {"part_id": "BL-12"}
+      -> { "part_id": "BL-12", "orders": [ { "order_id": "O-2201", "customer": "Morning Ritual Cafe", "product": "Cafe One", "units": 20, "parts_per_unit": 1, "parts_needed": 20, "ship_day": 6, "late_penalty": false }, { "order_id": "O-2202", "customer": "Harbor Hotel Group", "product": "Cafe Duo", "units": ...
+    analyst step 3: check_coverage {"part_id": "BL-12", "po_number": "PO-5520", "revised_shipments": [{"qty": 80, "arrives_in_days": 7}, {"qty": 120, "arrives_in_days": 21}]}
+      -> { "part_id": "BL-12", "po_number": "PO-5520", "original_shipment": { "qty": 200, "arrives_in_days": 7 }, "revised_shipments": [ { "qty": 80, "arrives_in_days": 7 }, { "qty": 120, "arrives_in_days": 21 } ], "on_hand": 60, "rules": "Parts go to orders in ship-day order; an order ships the units it has...
+    analyst step 4: check_coverage {"part_id": "BL-12", "po_number": "PO-5520", "revised_shipments": [{"qty": 200, "arrives_in_days": 13}]}
+      -> { "part_id": "BL-12", "po_number": "PO-5520", "original_shipment": { "qty": 200, "arrives_in_days": 7 }, "revised_shipments": [ { "qty": 200, "arrives_in_days": 13 } ], "on_hand": 60, "rules": "Parts go to orders in ship-day order; an order ships the units it has parts for on its ship day and the re...
+    analyst step 5: check_coverage {"part_id": "BL-12", "po_number": "PO-5520", "revised_shipments": [{"qty": 200, "arrives_in_days": 7}]}
+      -> { "part_id": "BL-12", "po_number": "PO-5520", "original_shipment": { "qty": 200, "arrives_in_days": 7 }, "revised_shipments": [ { "qty": 200, "arrives_in_days": 7 } ], "on_hand": 60, "rules": "Parts go to orders in ship-day order; an order ships the units it has parts for on its ship day and the res...
+    ANALYST'S BRIEF
+    {
+      "part_id": "BL-12",
+      "what_changed": "PO-5520 (200 BL-12 boilers, scheduled to arrive on day 7) can't ship in full on time; Marlow offers either 80 on day 7 and 120 on day 21 (Option A) or all 200 on day 13 (Option B).",
+      "orders_at_risk": [
+        {
+          "order_id": "O-2205",
+          "customer": "Tall Pines Coffee House",
+          "units_short": 5,
+          "ship_day": 17,
+          "ready_day": 21,
+          "late_penalty": true
+        },
+        {
+          "order_id": "O-2203",
+          "customer": "Elm State University Dining",
+          "units_short": 40,
+          "ship_day": 12,
+          "ready_day": 13,
+          "late_penalty": true
+        }
+      ],
+      "options": [
+        {
+          "name": "Option A: 80 boilers on day 7, remaining 120 on day 21",
+          "order_ids_at_risk": [
+            "O-2205"
+          ]
+        },
+        {
+          "name": "Option B: all 200 boilers on day 13",
+          "order_ids_at_risk": [
+            "O-2203"
+          ]
+        }
+      ],
+      "decisions_for_a_person": [
+        "Choose Option A (5 units of O-2205 for Tall Pines Coffee House ready 4 days late, late penalty applies) or Option B (40 units of O-2203 for Elm State University Dining ready 1 day late, late penalty applies), and reply to Marlow within three business days or Option B applies by default.",
+        "Decide whether to warn the affected customer (Tall Pines under Option A, Elm State University Dining under Option B) about the partial late shipment."
+      ],
+      "supplier_questions": [
+        "Which shipping option (A or B) does Copperline want for PO-5520? Reply requested within three business days; Marlow will go with Option B if they don't hear back."
+      ]
+    }
+
+Step 2: supplier reply
+  [supplier writer] claude-sonnet-5-5
+    supplier draft: Hi Victor, Thank you for letting us know about PO-5520. To confirm our understanding: the order is for 200 BL-12 boilers, scheduled to arrive on day 7, and your...
+    reviewer: REVISE - **Rule 1: numbers don't follow from the facts.** - "We would be short 45 units… and 2 orders would be delayed by 1 to 4 days" is stated as the result of either option. The facts say each option delays...
+    supplier draft (rewrite 1): Hi Victor, Thank you for letting us know about PO-5520. To confirm our understanding: the order is for 200 BL-12 boilers, scheduled to arrive on day 7, and your...
+    reviewer: APPROVE
+
+FINAL DRAFT TO SUPPLIER
+Hi Victor,
+
+Thank you for letting us know about PO-5520. To confirm our understanding: the order is for 200 BL-12 boilers, scheduled to arrive on day 7, and your welding cell capacity means it can't ship in full on time. You've offered two options:
+
+- Option A: 80 boilers on day 7 and the remaining 120 on day 21.
+- Option B: all 200 boilers on day 13.
+
+Either option creates difficulties for us, and we'd like to reduce the shortfall if we can. Please let us know:
+
+1. Can you ship more than 80 boilers on day 7, or add a partial shipment before day 13 or day 21?
+2. Can any part of the order move earlier, for example by prioritizing this PO in your welding cell or adding a shift or overtime?
+3. If not, what is the earliest date each portion could ship?
+
+We understand you've asked for a reply within three business days. We are reviewing the options and will respond as soon as we can. We are not selecting an option in this email.
+
+Regards,
+Purchasing, Copperline Coffee Machines
+Marked for a person: no
+
+
+Step 3: customer notices
+  held: the supplier offered options that no one has chosen yet.
+
+============================================================
+Company:     Copperline Coffee (copperline-coffee)
+Email:       02-marlow-boiler-options.eml - PO-5520 - BL-12 boilers - please choose a shipping option
+Coordinator: pipeline
+Decision needed by a person: YES
+
+What changed: PO-5520 (200 BL-12 boilers, scheduled to arrive on day 7) can't ship in full on time; Marlow offers either 80 on day 7 and 120 on day 21 (Option A) or all 200 on day 13 (Option B).
+Orders at risk (depends on the option chosen - see below):
+  - O-2205 Tall Pines Coffee House: 5 units, 4 days late - LATE PENALTY
+  - O-2203 Elm State University Dining: 40 units, 1 days late - LATE PENALTY
+Decisions for a person:
+  - Choose Option A (5 units of O-2205 for Tall Pines Coffee House ready 4 days late, late penalty applies) or Option B (40 units of O-2203 for Elm State University Dining ready 1 day late, late penalty applies), and reply to Marlow within three business days or Option B applies by default.
+  - Decide whether to warn the affected customer (Tall Pines under Option A, Elm State University Dining under Option B) about the partial late shipment.
+
+Options offered (customer notices held until one is chosen):
+  - Option A: 80 boilers on day 7, remaining 120 on day 21: delays O-2205
+  - Option B: all 200 boilers on day 13: delays O-2203
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Victor Lindqvist
+============================================================
+Saved in week-05\drafts\copperline-coffee\20261122-171544-pipeline-02-marlow-boiler-options
+Tokens - analyst      input:    9,425  output:   1,911
+Tokens - writer       input:    3,395  output:     738
+Tokens - reviewer     input:    3,130  output:   2,394
+Tokens - total        input:   15,950  output:   5,043

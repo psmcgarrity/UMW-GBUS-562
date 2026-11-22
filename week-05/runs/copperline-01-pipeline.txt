@@ -1,0 +1,166 @@
+Coordinator: pipeline
+Email:       01-danforth-pump-delay.eml
+From:        Diane Kessler <d.kessler@danforthpump.example>
+Subject:     PO-5512 - PU-20 pumps - partial shipment
+
+Step 1: supply analyst
+  [supply analyst] claude-opus-5-5
+    [server] Copperline Coffee supply MCP server ready (stdio), data: copperline-coffee
+    [server] columns found under other names - orders.csv: ship_day=ship_by_day, quantity=units
+    analyst step 1: get_part {"part_id": "PU-20"}
+      -> { "part_id": "PU-20", "description": "Vibration pump", "on_hand": 50, "supplier": "Danforth Pump Works", "scheduled_shipments": [ { "po_number": "PO-5512", "supplier": "Danforth Pump Works", "qty": 200, "arrives_in_days": 4 } ] }
+    analyst step 2: get_orders_for_part {"part_id": "PU-20"}
+      -> { "part_id": "PU-20", "orders": [ { "order_id": "O-2201", "customer": "Morning Ritual Cafe", "product": "Cafe One", "units": 20, "parts_per_unit": 1, "parts_needed": 20, "ship_day": 6, "late_penalty": false }, { "order_id": "O-2202", "customer": "Harbor Hotel Group", "product": "Cafe Duo", "units": ...
+    analyst step 3: check_coverage {"part_id": "PU-20", "po_number": "PO-5512", "revised_shipments": [{"qty": 40, "arrives_in_days": 4}, {"qty": 160, "arrives_in_days": 19}]}
+      -> { "part_id": "PU-20", "po_number": "PO-5512", "original_shipment": { "qty": 200, "arrives_in_days": 4 }, "revised_shipments": [ { "qty": 40, "arrives_in_days": 4 }, { "qty": 160, "arrives_in_days": 19 } ], "on_hand": 50, "rules": "Parts go to orders in ship-day order; an order ships the units it has...
+    ANALYST'S BRIEF
+    {
+      "part_id": "PU-20",
+      "what_changed": "PO-5512 was due to deliver all 200 PU-20 pumps on day 4; now 40 arrive on day 4 and the other 160 arrive on day 19.",
+      "orders_at_risk": [
+        {
+          "order_id": "O-2203",
+          "customer": "Elm State University Dining",
+          "units_short": 10,
+          "ship_day": 12,
+          "ready_day": 19,
+          "late_penalty": true
+        },
+        {
+          "order_id": "O-2204",
+          "customer": "Kettle & Crumb Bakery",
+          "units_short": 10,
+          "ship_day": 15,
+          "ready_day": 19,
+          "late_penalty": false
+        },
+        {
+          "order_id": "O-2205",
+          "customer": "Tall Pines Coffee House",
+          "units_short": 25,
+          "ship_day": 17,
+          "ready_day": 19,
+          "late_penalty": true
+        }
+      ],
+      "options": [],
+      "decisions_for_a_person": [
+        "How to handle the late penalties on O-2203 (Elm State University Dining, 7 days late) and O-2205 (Tall Pines Coffee House, 2 days late). Options include asking Danforth to send the remaining 160 pumps sooner, finding PU-20 pumps elsewhere, or contacting the customers.",
+        "Whether to share any customer order information (names, quantities) with Danforth Pump Works, as they asked."
+      ],
+      "supplier_questions": [
+        "Could Copperline send a list of the customer orders these pumps are for, with each customer's name and quantity?"
+      ]
+    }
+
+Step 2: supplier reply
+  [supplier writer] claude-sonnet-5-5
+    supplier draft: Hello Diane, Thank you for letting us know about PO-5512. To confirm our understanding: of the 200 PU-20 vibration pumps, 40 will be delivered on the originally...
+    reviewer: REVISE - **Rule 2 (promises nothing the facts don't support; also touches rule 5):** The paragraph "We cannot share information about the orders these pumps support, so we won't be sending a customer list" com...
+    supplier draft (rewrite 1): Hello Diane, Thank you for letting us know about PO-5512. To confirm our understanding: of the 200 PU-20 vibration pumps, 40 will be delivered on the originally...
+    reviewer: APPROVE
+
+FINAL DRAFT TO SUPPLIER
+Hello Diane,
+
+Thank you for letting us know about PO-5512. To confirm our understanding: of the 200 PU-20 vibration pumps, 40 will be delivered on the originally scheduled date (day 4), and the remaining 160 will follow 15 days later (day 19).
+
+This change has a real impact on us. When our own orders fall due, we will be 55 pumps short. As a result, 45 units across 3 orders will be delayed, by between 2 and 7 days.
+
+We are looking at your request for order details and will come back to you on that separately.
+
+To reduce the impact, we ask that you look at the following:
+- Can more than 40 pumps ship on the scheduled date, even a few additional units?
+- Can any part of the remaining 160 pumps ship earlier than day 19, in smaller batches if that helps?
+- Is there any way to prioritize the test rig repair or use alternate inspection capacity to release the held pumps sooner?
+
+Please let us know what is possible and the dates for each shipment. We appreciate your effort to keep this delay as short as possible.
+
+Regards,
+
+Purchasing, Copperline Coffee Machines
+Marked for a person: no
+
+
+Step 3: customer notices
+  [customer writer] claude-sonnet-5-5 - O-2203
+    customer draft: Dear Elm State University Dining team, We're writing about your order O-2203 for 50 Cafe One machines. Because of a delay in a part from one of our suppliers, p...
+    reviewer: APPROVE
+
+FINAL DRAFT TO CUSTOMER O-2203
+Dear Elm State University Dining team,
+
+We're writing about your order O-2203 for 50 Cafe One machines. Because of a delay in a part from one of our suppliers, part of this order will ship later than planned.
+
+Here is the current shipping plan:
+
+- 40 units will ship on the originally planned date.
+- The remaining 10 units will ship together in one later shipment, 7 days after the planned date.
+
+We apologize for the inconvenience this causes you.
+
+If you have questions about the order or need to adjust your plans around the later shipment, please reply to this email and our team will help.
+
+Sincerely,
+Customer Service, Copperline Coffee Machines
+Marked for a person: no
+
+  [customer writer] claude-sonnet-5-5 - O-2204
+    customer draft: Hello Kettle & Crumb Bakery, We're writing about your order O-2204 for 10 Cafe Duo machines. Your order is now expected to ship 4 days later than planned. All 1...
+    reviewer: APPROVE
+
+FINAL DRAFT TO CUSTOMER O-2204
+Hello Kettle & Crumb Bakery,
+
+We're writing about your order O-2204 for 10 Cafe Duo machines. Your order is now expected to ship 4 days later than planned. All 10 units will ship together in a single shipment.
+
+The delay is due to a delay in a part from one of our suppliers. We apologize for the inconvenience this causes you.
+
+If you have any questions about your order, please reply to this email and our team will be happy to help.
+
+Customer Service, Copperline Coffee Machines
+Marked for a person: no
+
+  [customer writer] claude-sonnet-5-5 - O-2205
+    customer draft: Dear Tall Pines Coffee House, We're writing about your order O-2205 for 25 Cafe One machines. The order is now expected to ship 2 days later than planned. The d...
+    reviewer: APPROVE
+
+FINAL DRAFT TO CUSTOMER O-2205
+Dear Tall Pines Coffee House,
+
+We're writing about your order O-2205 for 25 Cafe One machines. The order is now expected to ship 2 days later than planned.
+
+The delay is caused by a delay in a part from one of our suppliers. All 25 units will ship together in a single shipment on the new date.
+
+We apologize for the inconvenience this causes you.
+
+Customer Service, Copperline Coffee Machines
+Marked for a person: no
+
+
+============================================================
+Company:     Copperline Coffee (copperline-coffee)
+Email:       01-danforth-pump-delay.eml - PO-5512 - PU-20 pumps - partial shipment
+Coordinator: pipeline
+Decision needed by a person: YES
+
+What changed: PO-5512 was due to deliver all 200 PU-20 pumps on day 4; now 40 arrive on day 4 and the other 160 arrive on day 19.
+Orders at risk:
+  - O-2203 Elm State University Dining: 10 units, 7 days late - LATE PENALTY
+  - O-2204 Kettle & Crumb Bakery: 10 units, 4 days late
+  - O-2205 Tall Pines Coffee House: 25 units, 2 days late - LATE PENALTY
+Decisions for a person:
+  - How to handle the late penalties on O-2203 (Elm State University Dining, 7 days late) and O-2205 (Tall Pines Coffee House, 2 days late). Options include asking Danforth to send the remaining 160 pumps sooner, finding PU-20 pumps elsewhere, or contacting the customers.
+  - Whether to share any customer order information (names, quantities) with Danforth Pump Works, as they asked.
+
+Drafts (nothing has been sent):
+  - APPROVED        supplier-reply.txt  to Diane Kessler
+  - APPROVED        customer-O-2203.txt  to Elm State University Dining
+  - APPROVED        customer-O-2204.txt  to Kettle & Crumb Bakery
+  - APPROVED        customer-O-2205.txt  to Tall Pines Coffee House
+============================================================
+Saved in week-05\drafts\copperline-coffee\20261122-171250-pipeline-01-danforth-pump-delay
+Tokens - analyst      input:    8,646  output:   1,303
+Tokens - writer       input:    4,158  output:   1,279
+Tokens - reviewer     input:    4,933  output:   3,431
+Tokens - total        input:   17,737  output:   6,013

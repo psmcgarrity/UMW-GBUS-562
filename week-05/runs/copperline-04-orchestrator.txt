@@ -1,0 +1,43 @@
+Coordinator: orchestrator
+Email:       04-pelham-maintenance-closure.eml
+From:        Owen Brady <o.brady@pelhamfittings.example>
+Subject:     Plant maintenance closure - PO-5540 not affected
+
+[orchestrator] claude-opus-5-5
+  orchestrator step 1: run_supply_analyst {}
+    [supply analyst] claude-opus-5-5
+      [server] Copperline Coffee supply MCP server ready (stdio), data: copperline-coffee
+      [server] columns found under other names - orders.csv: ship_day=ship_by_day, quantity=units
+      analyst step 1: get_part {"part_id": "SW-3"}
+        -> { "part_id": "SW-3", "description": "Steam wand", "on_hand": 40, "supplier": "Pelham Fittings", "scheduled_shipments": [ { "po_number": "PO-5540", "supplier": "Pelham Fittings", "qty": 60, "arrives_in_days": 11 } ] }
+      analyst step 2: get_orders_for_part {"part_id": "SW-3"}
+        -> { "part_id": "SW-3", "orders": [ { "order_id": "O-2202", "customer": "Harbor Hotel Group", "product": "Cafe Duo", "units": 15, "parts_per_unit": 1, "parts_needed": 15, "ship_day": 9, "late_penalty": false }, { "order_id": "O-2204", "customer": "Kettle & Crumb Bakery", "product": "Cafe Duo", "units":...
+      analyst step 3: check_coverage {"part_id": "SW-3", "po_number": "PO-5540", "revised_shipments": [{"qty": 60, "arrives_in_days": 11}]}
+        -> { "part_id": "SW-3", "po_number": "PO-5540", "original_shipment": { "qty": 60, "arrives_in_days": 11 }, "revised_shipments": [ { "qty": 60, "arrives_in_days": 11 } ], "on_hand": 40, "rules": "Parts go to orders in ship-day order; an order ships the units it has parts for on its ship day and the rest...
+      ANALYST'S BRIEF
+      {
+        "part_id": "SW-3",
+        "what_changed": "Nothing changes: PO-5540 still brings 60 SW-3 steam wands on day 11 as scheduled; separately, Pelham Fittings' plant will close for one week starting four weeks from today (about day 28 to day 35), which doesn't affect this order.",
+        "orders_at_risk": [],
+        "options": [],
+        "decisions_for_a_person": [],
+        "supplier_questions": []
+      }
+    -> { "brief": { "part_id": "SW-3", "what_changed": "Nothing changes: PO-5540 still brings 60 SW-3 steam wands on day 11 as scheduled; separately, Pelham Fittings' plant will close for one week starting four weeks from today (about day 28 to day 35), which doesn't affect this order.", "orders_at_risk": ...
+  orchestrator step 2: finish {"summary": "Pelham Fittings (Owen Brady) says their plant will close for one week of maintenance, starting four weeks from today (about day 28 to day 35). The supply analyst checked this against our data. PO-5540 for 60 SW-3 steam wands still arrives on schedule on day 11, and no customer orders are at risk. The only thing to keep in mind is timing: avoid planning any new SW-3 orders with Pelham that would need to ship from about day 28 to day 35. I didn't draft a supplier reply or any customer notices because none were needed.", "needs_decision": false}
+    -> Finished.
+
+============================================================
+Company:     Copperline Coffee (copperline-coffee)
+Email:       04-pelham-maintenance-closure.eml - Plant maintenance closure - PO-5540 not affected
+Coordinator: orchestrator
+Decision needed by a person: no
+
+Pelham Fittings (Owen Brady) says their plant will close for one week of maintenance, starting four weeks from today (about day 28 to day 35). The supply analyst checked this against our data. PO-5540 for 60 SW-3 steam wands still arrives on schedule on day 11, and no customer orders are at risk. The only thing to keep in mind is timing: avoid planning any new SW-3 orders with Pelham that would need to ship from about day 28 to day 35. I didn't draft a supplier reply or any customer notices because none were needed.
+
+Drafts: none.
+============================================================
+Saved in week-05\drafts\copperline-coffee\20261122-172202-orchestrator-04-pelham-maintenance-closure
+Tokens - orchestrator input:    3,217  output:     501
+Tokens - analyst      input:    7,159  output:     907
+Tokens - total        input:   10,376  output:   1,408

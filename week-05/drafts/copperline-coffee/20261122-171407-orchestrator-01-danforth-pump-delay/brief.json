@@ -1,0 +1,39 @@
+{
+  "part_id": "PU-20",
+  "what_changed": "PO-5512 was due to deliver all 200 PU-20 pumps on day 4; now 40 arrive on day 4 and the other 160 arrive on day 19.",
+  "orders_at_risk": [
+    {
+      "order_id": "O-2203",
+      "customer": "Elm State University Dining",
+      "units_short": 10,
+      "ship_day": 12,
+      "ready_day": 19,
+      "late_penalty": true
+    },
+    {
+      "order_id": "O-2204",
+      "customer": "Kettle & Crumb Bakery",
+      "units_short": 10,
+      "ship_day": 15,
+      "ready_day": 19,
+      "late_penalty": false
+    },
+    {
+      "order_id": "O-2205",
+      "customer": "Tall Pines Coffee House",
+      "units_short": 25,
+      "ship_day": 17,
+      "ready_day": 19,
+      "late_penalty": true
+    }
+  ],
+  "options": [],
+  "decisions_for_a_person": [
+    "How to handle the late shipments to the two orders with late penalties (O-2203, Elm State University Dining, 10 units 7 days late; O-2205, Tall Pines Coffee House, 25 units 2 days late), and to O-2204 (Kettle & Crumb Bakery, 10 units 4 days late).",
+    "Whether to push Danforth Pump Works to deliver the remaining 160 pumps sooner. Arrival by day 12 would avoid all three late orders.",
+    "Whether to share customer names and order quantities with Danforth Pump Works as Diane asked, or send only total quantities and dates needed. This is Copperline's confidential customer data."
+  ],
+  "supplier_questions": [
+    "Could Copperline send a list of the customer orders these pumps are for, with each customer's name and quantity?"
+  ]
+}

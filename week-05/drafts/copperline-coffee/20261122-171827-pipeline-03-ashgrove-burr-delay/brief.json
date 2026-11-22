@@ -1,0 +1,10 @@
+{
+  "part_id": "BR-64",
+  "what_changed": "PO-5531 for 120 BR-64 burr sets will now arrive all together in 13 days instead of 10.",
+  "orders_at_risk": [],
+  "options": [],
+  "decisions_for_a_person": [],
+  "supplier_questions": [
+    "Does the 3-day delay of PO-5531 (now arriving day 13) cause any problems on Copperline's side?"
+  ]
+}
